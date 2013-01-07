@@ -1,0 +1,13 @@
+/* CSS Document */
+
+@font-face {
+    font-family: 'fmabhayax';
+    src: url('fonts/fm_abhaya-webfont.eot');
+    src: url('fonts/fm_abhaya-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/fm_abhaya-webfont.woff') format('woff'),
+         url('fonts/fm_abhaya-webfont.ttf') format('truetype'),
+         url('fonts/fm_abhaya-webfont.svg#fmabhayax') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}

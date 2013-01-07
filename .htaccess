@@ -1,0 +1,5 @@
+RewriteEngine on
+
+RewriteBase /surgery.lk/dev/
+RewriteCond $1 !^(index\.php|blog|images|ext|logs|ipn_log|ipn|css|js|font|captcha|temp_upload_data|user_data|robots\.txt)
+RewriteRule ^(.*)$ index.php/$1 [L]

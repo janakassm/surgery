@@ -1,0 +1,271 @@
+/* CSS Document */
+
+@font-face {
+    font-family: 'fmabhayax';
+    src: url('fonts/fm_abhaya-webfont.eot');
+    src: url('fonts/fm_abhaya-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/fm_abhaya-webfont.woff') format('woff'),
+         url('fonts/fm_abhaya-webfont.ttf') format('truetype'),
+         url('fonts/fm_abhaya-webfont.svg#fmabhayax') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+
+@font-face {
+    font-family: 'fmbindumathix';
+    src: url('fonts/fm_bindu-webfont.eot');
+    src: url('fonts/fm_bindu-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/fm_bindu-webfont.woff') format('woff'),
+         url('fonts/fm_bindu-webfont.ttf') format('truetype'),
+         url('fonts/fm_bindu-webfont.svg#fmbindumathix') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+@font-face {
+    font-family: 'sandaru-nregular';
+    src: url('fonts/sandaru_normal-webfont.eot');
+    src: url('fonts/sandaru_normal-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/sandaru_normal-webfont.woff') format('woff'),
+         url('fonts/sandaru_normal-webfont.ttf') format('truetype'),
+         url('fonts/sandaru_normal-webfont.svg#sandaru-nregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'dl-sarala';
+    src: url('fonts/dl_-_sarala-webfont.eot');
+    src: url('fonts/dl_-_sarala-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/dl_-_sarala-webfont.woff') format('woff'),
+         url('fonts/dl_-_sarala-webfont.ttf') format('truetype'),
+         url('fonts/dl_-_sarala-webfont.svg#dl-sarala.plain.') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'dimuthu_bold';
+    src: url('fonts/dimuthu_bold-webfont.eot');
+    src: url('fonts/dimuthu_bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/dimuthu_bold-webfont.woff') format('woff'),
+         url('fonts/dimuthu_bold-webfont.ttf') format('truetype'),
+         url('fonts/dimuthu_bold-webfont.svg#dimuthu_bold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+
+@font-face {
+    font-family: 'dl-sumudu';
+    src: url('fonts/dl_-_sumudu-webfont.eot');
+    src: url('fonts/dl_-_sumudu-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/dl_-_sumudu-webfont.woff') format('woff'),
+         url('fonts/dl_-_sumudu-webfont.ttf') format('truetype'),
+         url('fonts/dl_-_sumudu-webfont.svg#dl-sumudu.plain.') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+/*common styles*/
+
+html{
+	margin:0px;
+	padding:0px;
+	background:url(../images/bg-tile.png) repeat;
+	height:100%;
+}
+body{
+	height:100%;
+	background:url(../images/body-frame.png) repeat-y center center;
+	margin:0px;
+	padding:0px;
+	
+}
+
+
+body *{
+	font-family:'fm-abhaya';
+	margin:0px;
+	padding:0px;	
+}
+ul{
+	list-style:none;
+	margin:0px;
+	padding:0px;
+}
+
+.english{
+	font-family:Arial, Helvetica, sans-serif;
+	color:#4A4A4A;
+}
+.sinhala{
+	font-family:'fmabhayax';	
+}
+
+.clear{
+	clear:both;
+	height:0px;
+	width:0px;
+	float:none;
+	display:block;	
+}
+
+.main-wrapper{
+	overflow:hidden;
+	/*width:1006px;
+	margin-left:auto;
+	margin-right:auto;
+	background:url(../images/body-frame.png) repeat-y;*/
+	
+}
+.inner-wrapper{
+	position:relative;
+	top:-5px;	
+	z-index:100;
+}
+
+.inner-wrapper > *{
+	
+	
+}
+
+
+/*headder styles*/
+.main-headder{
+	background:url(../images/common/headder_bottom.png) bottom center repeat-x;
+	padding-bottom:4px;
+	position:relative;
+	z-index:101;
+}
+
+.top-banner {
+	margin:0px;
+	padding-left:5px;
+	padding-top:5px;
+	background:url(../images/common/headder_bg.png) repeat-x;
+	height:62px;
+	position:relative;
+	z-index:103;
+}
+
+.top-banner img{
+	float:left;	
+}
+
+.main-menu{
+	position:relative;
+	top:30px;
+	float:right;
+	position:relative;
+	z-index:102;
+}
+
+.main-menu li {
+	float:left;
+	margin:0px;
+	
+	padding-top:2px;
+	padding-bottom:2px;
+	
+	padding-left:10px;
+	padding-right:10px;
+		
+	font-size:15px;
+	font-weight:bold;
+	color:#FFFFFF;
+	background:url(../images/common/menu_sep.png) right center no-repeat;
+}
+
+.main-menu li.last,.sub-menu li.last {
+	background:none;	
+}
+
+.main-menu li:hover {
+	cursor:pointer;	
+}
+
+.sub-menu{
+	position:relative;
+	padding-top:5px;
+	background:url(../images/common/sub_menu_bg.png) repeat;
+	top:-5px;
+}
+
+.sub-menu li {
+	float:left;
+	margin:0px;
+	
+	padding-top:5px;
+	padding-bottom:5px;
+	
+	padding-left:10px;
+	padding-right:10px;
+		
+	font-size:14px;
+	color:#333;
+	background:url(../images/common/sub_menu_sep.png) right center no-repeat;
+}
+
+
+/*body style - left panel*/
+.left-menu{
+		
+}
+.left-menu li {
+	margin:0px;
+	padding:0px;
+	
+	font-size:17px;
+}
+
+.left-panel{
+	width:150px;
+	float:left;
+	background:#0066CC;	
+	height:100%;
+}
+.middle-panel {
+	
+	height:100%;
+	margin-left:auto;
+	margin-right:auto;
+	width:1006px;
+	padding-left:10px;
+	padding-top:10px;
+}
+
+.middle-panel h1{
+	margin-bottom:10px;	
+}
+
+.middle-panel h1.english, .middle-panel h1 span.english{
+	font-weight:normal;
+	font-size:26px;
+}
+
+
+
+.right-panel{
+	width:150px;
+	float:left;	
+	background:#0066CC;
+	height:100%;
+}
+.qq-upload-list{
+	display:none;
+}
