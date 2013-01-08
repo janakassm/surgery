@@ -135,7 +135,7 @@ class Topic_Model extends GeneralModel {
 		
 	}
 	
-	public static function GetTopics($pageId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
+	public static function GetTopics($articleId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
     {
     	self::$CI->load->library('Topic');
 		   
@@ -150,8 +150,8 @@ class Topic_Model extends GeneralModel {
 			self::$db->select($selectQuery);	
 		}
 		
-		if( !is_null($pageId) )
-			self::$db->where('topic_page_id', $pageId);
+		if( !is_null($articleId) )
+			self::$db->where('topic_article', $articleId);
 		
 		
 		
@@ -165,7 +165,7 @@ class Topic_Model extends GeneralModel {
 		}
 		
 		self::$db->order_by('topic_sort_count','ASC');
-		self::$db->order_by('topic_page_id','ASC');
+		self::$db->order_by('topic_article','ASC');
 		
     	$query = self::$db->get(self::$table);
         

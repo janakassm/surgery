@@ -1,22 +1,22 @@
 <?php /* Smarty version Smarty-3.1.7, created on 
-         compiled from "application\views\admin\articles\add-edit.tpl" */ ?>
-<?php /*%%SmartyHeaderCode:6215477a606b89a8e3-37478182%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+         compiled from "application/views/admin/articles/add-edit.tpl" */ ?>
+<?php /*%%SmartyHeaderCode:84834885950ebbc301895c8-89450365%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
   'file_dependency' => 
   array (
-    'f0b967fd2fef31a1acb13204a562e169ab97dbb7' => 
+    'f188c6f0a071e96b5bc94cb68c6db050d6b17083' => 
     array (
-      0 => 'application\\views\\admin\\articles\\add-edit.tpl',
-      1 => 1356841269,
+      0 => 'application/views/admin/articles/add-edit.tpl',
+      1 => 1357641038,
       2 => 'file',
     ),
   ),
-  'nocache_hash' => '6215477a606b89a8e3-37478182',
+  'nocache_hash' => '84834885950ebbc301895c8-89450365',
   'function' => 
   array (
   ),
   'version' => 'Smarty-3.1.7',
-  'unifunc' => 'content_477a606b9472a',
+  'unifunc' => 'content_50ebbc302546c',
   'variables' => 
   array (
     'headder' => 0,
@@ -28,11 +28,14 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'lvl1childCategories' => 0,
     'lvl2childCategories' => 0,
     'lvl3childCategories' => 0,
+    'topicList' => 0,
+    'topic' => 0,
+    'img' => 0,
     'footer' => 0,
   ),
   'has_nocache_code' => false,
 ),false); /*/%%SmartyHeaderCode%%*/?>
-<?php if ($_valid && !is_callable('content_477a606b9472a')) {function content_477a606b9472a($_smarty_tpl) {?><?php echo $_smarty_tpl->tpl_vars['headder']->value;?>
+<?php if ($_valid && !is_callable('content_50ebbc302546c')) {function content_50ebbc302546c($_smarty_tpl) {?><?php echo $_smarty_tpl->tpl_vars['headder']->value;?>
 
 
 <script type="text/javascript">
@@ -97,57 +100,32 @@ $(document).ready(function(e) {
 							var newTopic = $("#new-topic-tpl").clone();
 							var selectedTopic = response.topicId;
 							
-							newTopic.find(".topic-id").val(selectedTopic);
+							newTopic.find(".topic_id").val(selectedTopic);
 							
 							newTopic.find(".save-button").click(function(e) {
 								e.preventDefault();
-								
-								var topicId = $(this).parent().find(".topic-id").val();
-								var formData = $(this).parent().serialize();
-								var formElement =  $(this).parent();
-								
-								formElement.next().show();
-								formElement.hide();
-								
-								$.post( 
-									set_url+'saveTopic',  
-									formData, 
-									function(response) {
-										formElement.next().hide();
-										formElement.show();
-									},
-									'json');
+								TopicSaveAction($(this));								
 							});
 							
 							newTopic.find(".delete-button").click(function(e) {
 								e.preventDefault();
-								
-								var formElement =  $(this).parent();
-								var formData = formElement.serialize();
-								
-								$.post( 
-									set_url+'deleteTopic',  
-									formData, 
-									function(response) {
-										if(response.success)
-										{
-											formElement.parent().remove();
-										}
-										else
-											console.log('deletion failed');
-									},
-									'json');
+								TopicDeleteAction($(this));								
 							});
 							
 							newTopic.find(".add-image-button").fineUploader({
 								maxConnections:1,
 								request: {
 									endpoint: base_url+'admin/articles/UploadImage',
-									params:{'id':selectedTopic},
+									params:{
+										'id': $(this).parent().find(".topic_id").val()
+										},
 									
 								}
-							}).on('complete', function(event, id, filename, responseJSON){
-								
+							})
+							.on('submit', function(event, id, filename) {				
+				     				$(this).fineUploader('setParams', {'id': $(this).parent().find(".topic_id").val()});
+				  			})
+							.on('complete', function(event, id, filename, responseJSON){
 								
 								var imgWrap = $(
 									'<div id="image_'+responseJSON.filename_we+'" > '+
@@ -156,23 +134,10 @@ $(document).ready(function(e) {
 									'<a  class="delete-button AdminBut Delete" title="'+responseJSON.filename_we+'">Delete</a></div>'
 								);
 								
-								imgWrap.find('.delete-button').click(function(){
+								imgWrap.find('.delete-button').click(function(e){
+									e.preventDefault();
 									
-									var fileId = $(this).attr('title');
-									var topicId = $(this).parent().parent().parent().find(".topic-id").val();
-									
-									$.post( 
-										base_url+'admin/articles/DeleteImage',  
-										{ 'file': fileId, 'pid':topicId }, 
-										function(response) {
-											if(response.success)
-											{
-												$("#image_"+response.fileId).remove();
-											}
-										},
-										'json'
-									);
-									
+									ImageDeleteAction($(this));									
 								});
 								
 								imgWrap.appendTo(newTopic.find(".image-list"));
@@ -187,7 +152,7 @@ $(document).ready(function(e) {
 								video.attr('src',url);
 								videoList.append(video);
 							});
-								
+							
 							newTopic.appendTo("#topic-container");
 							
 							newTopic.attr('id','new-topic-'+selectedTopic);
@@ -201,11 +166,126 @@ $(document).ready(function(e) {
 			return;
     });
 	
-	
+	SetupTopics();
 	
 	
 });
 
+function SetupTopics()
+{
+	$('.article_topic').each(function(index,element)
+		{
+			var newTopic = $(element);
+			
+			
+			newTopic.find(".save-button").click(function(e) {
+								e.preventDefault();
+								TopicSaveAction($(this));								
+							});
+							
+			newTopic.find(".delete-button").click(function(e) {
+				e.preventDefault();
+				TopicDeleteAction($(this));								
+			});
+			
+			newTopic.find(".add-image-button").fineUploader({
+				maxConnections:1,
+				request: {
+					endpoint: base_url+'admin/articles/UploadImage'
+				}
+			})
+			.on('submit', function(event, id, filename) {				
+     				$(this).fineUploader('setParams', {'id': $(this).parent().find(".topic_id").val()});
+  			})
+			.on('complete', function(event, id, filename, responseJSON){
+				
+				
+				var imgWrap = $(
+					'<div id="image_'+responseJSON.filename_we+'" > '+
+					'<img src = "'+base_url+responseJSON.file_url+'" id="img-'+responseJSON.filename_we+'" title="'+responseJSON.filename_we+'" />'+
+					'<div class="clear10" style="float:none;"></div>'+
+					'<a  class="delete-button AdminBut Delete" title="'+responseJSON.filename_we+'">Delete</a></div>'
+				);
+				
+				imgWrap.find('.delete-button').click(function(e){
+					e.preventDefault();
+					ImageDeleteAction($(this));									
+				});
+				
+				imgWrap.appendTo(newTopic.find(".image-list"));
+			});
+		
+			newTopic.find(".add-video-button").click(function(e){
+				e.preventDefault();
+				var videoList = $(newTopic.find('.video-list'));
+				var url = newTopic.find(".video_link").val();
+				videoList.html('');
+				var video = $('<embed width="420" height="345" type="application/x-shockwave-flash"></embed>');
+				video.attr('src',url);
+				videoList.append(video);
+			});
+			
+			
+		}
+	);
+}
+
+
+function TopicSaveAction(element)
+{
+	var topicId = $(element).parent().find(".topic-id").val();
+	var formData = $(element).parent().serialize();
+	var formElement =  $(element).parent();
+	
+	formElement.next().show();
+	formElement.hide();
+	
+	$.post( 
+		set_url+'saveTopic',  
+		formData, 
+		function(response) {
+			formElement.next().hide();
+			formElement.show();
+		},
+		'json');
+}
+
+function TopicDeleteAction(element)
+{
+	var formElement =  $(element).parent();
+	var formData = formElement.serialize();
+	
+	$.post( 
+		set_url+'deleteTopic',  
+		formData, 
+		function(response) {
+			if(response.success)
+			{
+				formElement.parent().remove();
+			}
+			else
+				console.log('deletion failed');
+		},
+		'json');
+}
+
+function ImageDeleteAction(element)
+{
+	var fileId = $(element).attr('title');
+	var topicId = $(element).parent().parent().parent().find(".topic-id").val();
+	
+	$.post( 
+		base_url+'admin/articles/DeleteImage',  
+		{ 'file': fileId, 'pid':topicId }, 
+		function(response) {
+			if(response.success)
+			{
+				$("#image_"+response.fileId).remove();
+			}
+		},
+		'json'
+	);
+}
 //
 </script>
 	<div>
@@ -278,6 +358,57 @@ $_smarty_tpl->tpl_vars['category']->_loop = true;
         <button type="button" id="add-topic">+</button><br />
         
         <div id="topic-container">
+        	<?php  $_smarty_tpl->tpl_vars['topic'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['topic']->_loop = false;
+ $_from = $_smarty_tpl->tpl_vars['topicList']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['topic']->key => $_smarty_tpl->tpl_vars['topic']->value){
+$_smarty_tpl->tpl_vars['topic']->_loop = true;
+?>
+        		<?php echo $_smarty_tpl->tpl_vars['topic']->value->Refresh();?>
+
+        	<div id="new-topic-<?php echo $_smarty_tpl->tpl_vars['topic']->value->topic_id;?>
+" class="article_topic" >
+		    	<form class="topic-form">
+		            <input type="text" name="topic_heading" value="<?php echo $_smarty_tpl->tpl_vars['topic']->value->topic_heading;?>
+" /><br />
+		            <textarea class="topic_body" name="topic_content" ><?php echo $_smarty_tpl->tpl_vars['topic']->value->topic_content;?>
+</textarea><br />
+		            <div class="image-list">
+		            	<?php  $_smarty_tpl->tpl_vars['img'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['img']->_loop = false;
+ $_from = $_smarty_tpl->tpl_vars['topic']->value->GetImageList(); if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['img']->key => $_smarty_tpl->tpl_vars['img']->value){
+$_smarty_tpl->tpl_vars['img']->_loop = true;
+?>
+		            	<div id="image_<?php echo $_smarty_tpl->tpl_vars['img']->value['fileId'];?>
+" >
+						<img src = "<?php echo $_smarty_tpl->tpl_vars['base_url']->value;?>
+<?php echo $_smarty_tpl->tpl_vars['img']->value['fileUrl'];?>
+" id="img-<?php echo $_smarty_tpl->tpl_vars['img']->value['fileId'];?>
+" title="<?php echo $_smarty_tpl->tpl_vars['img']->value['fileId'];?>
+" />
+						<div class="clear10" style="float:none;"></div>
+						<a  class="delete-button AdminBut Delete" title="<?php echo $_smarty_tpl->tpl_vars['img']->value['fileId'];?>
+">Delete</a></div>
+		            	<?php } ?>
+		            </div>
+		            
+		            <div class="add-image-button">Add Image</div>
+		            
+		            
+		            
+		            <input class="video_link" />
+		            <button class="add-video-button">Add Video</button>
+		            
+		            <div class="video-list"></div>
+		            
+		            <br />
+		            <button class="save-button">Save</button>
+		            <button class="delete-button">Delete</button>
+		            <input type="hidden" name="topic_id" class="topic_id" value="<?php echo $_smarty_tpl->tpl_vars['topic']->value->topic_id;?>
+"  />
+		        </form>
+		        <div class="loading-progrss" style="display:none" >Saving....</div>
+		    </div>
+        	<?php } ?>
         </div>
     
     		

@@ -20,7 +20,7 @@ class Article extends GeneralClass
 	}
 	
 	
-	public function IsArticle( $refreshObject = true,$byTitle =false )
+	public function IsArticle( $refreshObject = true,$byTitle =false)
 	{
 		
 		if( $byTitle && $data = $this->CI->article_manager->Get(NULL, $this->article_title) )
@@ -302,14 +302,23 @@ class Article extends GeneralClass
 	
 	public function GetArticleCategoryTitle()
 	{
+		$this->CI->load->library('Category');
 		
-		$category  = new ArticleCategory();
-		$category->article_category_id = $this->article_category;
+		$category  = new Category();
+		$category->category_id = $this->article_category;
 		
-		$category->IsArticleCategory(true);
-		
-		return $category->article_category_title;
-		
+		if($category->IsCategory())
+		{
+			return $category->category_title_sin;
+		}
+		else
+			return NULL;
+	}
+
+	public function GetTopics()
+	{
+		$this->CI->load->library('Topic');
+		return Topic::GetTopics($this->article_id);
 	}
 	
 	private function Update()
