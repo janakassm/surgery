@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://localhost/surgery.lk/dev';
+$config['base_url']	= 'http://localhost/surgery.lk';
 //$config['base_url'] = 'http://coolbithosting.com/janaka/surgery.lk/dev/';
 //$config['base_url']	= 'http://192.168.1.100/surgery.lk/dev';
 

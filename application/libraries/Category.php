@@ -17,21 +17,18 @@ class Category extends GeneralClass {
 			
 	}
 	
-	public function IsCategory($checkVisible=true)
+	public function IsCategory($checkVisible=true, $refreshObject = true)
 	{
-		$this->CI->db->where('id',$this->id);
-		
-		$query = $this->CI->db->get('cateogry');
-		if($query->num_rows() > 0)
-		{	
-			/*if($checkVisible && !$this->isActivated())
-			{
-				return false;
-			}*/
+		 $data = $this->CI->category_manager->Get($this->category_id,true);
+		 if( !empty($data) )
+		 {
+		 	if($refreshObject)
+				$this->Refresh($data);
+			
 			return true;
-		}
-		else
-			return false;
+		 }
+		 
+		 return false;
 	}
 	
 	public function IsVisible()
@@ -57,11 +54,12 @@ class Category extends GeneralClass {
 	
 	/* General functions */
 	
-	public function Refresh()
+	public function Refresh($data = NULL)
 	{
-		$this->CI->db->where('id',$this->id);
-		$query = $this->CI->db->get('cateogry');
-		$this->parseToObject($query->row_array());
+		if( is_null($data) )
+			$data = $this->CI->category_manager->Get($this->category_id,true);
+		
+		$this->parseToObject($data);
 	}
 	
 	

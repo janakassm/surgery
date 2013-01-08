@@ -14,12 +14,15 @@ class Articles extends Guest_Controller {
 	{
 		$tplData = $this->GetCommonTpls('Manage articles');
 		
-		
+		$this->session->unset_userdata('admin_current_article_id');
 		
 		$css = array('style-admin.css');
 		$js_links = array('jquery.autosize.js','jquery.fineuploader-3.0.min.js');
 		
 		$tplData = $this->GetCommonTpls('Add New Cateogry',NULL,NULL,NULL,NULL,$css);
+		
+		$tplData['articleList'] = Article::GetArticles();
+		
 		
 		$this->parser->parse("admin/articles/index.tpl",$tplData);
 	}
@@ -66,9 +69,7 @@ class Articles extends Guest_Controller {
 			
 			$this->form_validation->set_rules('article_title', 'Article Title', 'trim|required' );
 			$this->form_validation->set_rules('article_category', 'Category', 'trim|required' );
-			
 
-			var_dump( $this->input->post() );
 			//die();
 			
 			/*$session = $this->session->userdata('tmpUploads360');
@@ -82,9 +83,8 @@ class Articles extends Guest_Controller {
 			if ( $this->form_validation->run() )
 			{
 				$article->ParseToObject( $this->input->post() );
-				
-				$article->Save();
-				
+				$article->article_is_saved = true;
+				$article->Save();				
 				redirect( base_url('admin/articles?view=view_topics') );
 				
 			}
@@ -102,6 +102,73 @@ class Articles extends Guest_Controller {
 		
 		
 		$tplData['categoryList'] = $categoryList;
+		
+		$tplData['article'] = $article;
+		
+		$this->parser->parse("admin/articles/add-edit.tpl",$tplData);
+	}
+
+	public function edit()
+	{
+		$articleId = intval($this->input->get('id'));
+		if( is_null($articleId) || $articleId == 0)
+		{
+			redirect( base_url('admin/articles/?error=no_id') );
+		}
+		
+		$article = new Article();
+		$article->article_id = $articleId;
+		
+		if( !$article->IsArticle() )
+		{
+			redirect( base_url('admin/articles/?error=no_property') );
+		}
+		
+		$css_links = array('style-admin.css');
+		$js_links = array('tiny_mce/tiny_mce.js','jQuery.validity.min.js','jquery.autosize.js','jquery.fineuploader-3.0.min.js');
+		
+		$tplData = $this->GetCommonTpls('Edit Article',NULL,NULL,NULL,$js_links,$css_links);
+		
+		$tplData['categoryList'] =  Category::GetCategories( NULL, 0);
+		
+		$tplData['topicList'] = $article->GetTopics();
+		
+		if($this->input->post('save'))
+		{
+			//populate temp post data
+			$article->ParseToObject( $this->input->post() );
+			
+			
+			$this->form_validation->set_rules('article_title', 'Article Title', 'trim|required' );
+			$this->form_validation->set_rules('article_category', 'Category', 'trim|required' );
+
+			//die();
+			
+			/*$session = $this->session->userdata('tmpUploads360');
+			$imageList = $session['files'];
+			$article->SetImageList360($imageList);
+					
+			$session = $this->session->userdata('tmpUploads');
+			$imageList = $session['files'];
+			$article->SetImageList($imageList);*/
+					
+			if ( $this->form_validation->run() )
+			{
+				$article->ParseToObject( $this->input->post() );
+				$article->Save();				
+				redirect( base_url('admin/articles?view=view_topics') );
+				
+			}
+			else 
+			{
+				$tplData['msg'] = validation_errors('<div class="error">', '</div>');
+			}
+			
+		}
+		else if($this->input->post('add_advertisement'))
+		{
+			$this->session->set_userdata('back_to','admin/articles/add');
+		}
 		
 		$tplData['article'] = $article;
 		
@@ -136,7 +203,7 @@ class Articles extends Guest_Controller {
 			
 			if( !is_dir($uploadPath) )
 			{
-				mkdir($uploadPath,0666,true);
+				mkdir($uploadPath,0777,true);
 			}
 			
 			$topic = new Topic();

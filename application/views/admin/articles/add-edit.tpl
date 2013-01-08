@@ -58,57 +58,32 @@ $(document).ready(function(e) {
 							var newTopic = $("#new-topic-tpl").clone();
 							var selectedTopic = response.topicId;
 							
-							newTopic.find(".topic-id").val(selectedTopic);
+							newTopic.find(".topic_id").val(selectedTopic);
 							
 							newTopic.find(".save-button").click(function(e) {
 								e.preventDefault();
-								
-								var topicId = $(this).parent().find(".topic-id").val();
-								var formData = $(this).parent().serialize();
-								var formElement =  $(this).parent();
-								
-								formElement.next().show();
-								formElement.hide();
-								
-								$.post( 
-									set_url+'saveTopic',  
-									formData, 
-									function(response) {
-										formElement.next().hide();
-										formElement.show();
-									},
-									'json');
+								TopicSaveAction($(this));								
 							});
 							
 							newTopic.find(".delete-button").click(function(e) {
 								e.preventDefault();
-								
-								var formElement =  $(this).parent();
-								var formData = formElement.serialize();
-								
-								$.post( 
-									set_url+'deleteTopic',  
-									formData, 
-									function(response) {
-										if(response.success)
-										{
-											formElement.parent().remove();
-										}
-										else
-											console.log('deletion failed');
-									},
-									'json');
+								TopicDeleteAction($(this));								
 							});
 							
 							newTopic.find(".add-image-button").fineUploader({
 								maxConnections:1,
 								request: {
 									endpoint: base_url+'admin/articles/UploadImage',
-									params:{'id':selectedTopic},
+									params:{
+										'id': $(this).parent().find(".topic_id").val()
+										},
 									
 								}
-							}).on('complete', function(event, id, filename, responseJSON){
-								
+							})
+							.on('submit', function(event, id, filename) {				
+				     				$(this).fineUploader('setParams', {'id': $(this).parent().find(".topic_id").val()});
+				  			})
+							.on('complete', function(event, id, filename, responseJSON){
 								
 								var imgWrap = $(
 									'<div id="image_'+responseJSON.filename_we+'" > '+
@@ -117,23 +92,10 @@ $(document).ready(function(e) {
 									'<a  class="delete-button AdminBut Delete" title="'+responseJSON.filename_we+'">Delete</a></div>'
 								);
 								
-								imgWrap.find('.delete-button').click(function(){
+								imgWrap.find('.delete-button').click(function(e){
+									e.preventDefault();
 									
-									var fileId = $(this).attr('title');
-									var topicId = $(this).parent().parent().parent().find(".topic-id").val();
-									
-									$.post( 
-										base_url+'admin/articles/DeleteImage',  
-										{ 'file': fileId, 'pid':topicId }, 
-										function(response) {
-											if(response.success)
-											{
-												$("#image_"+response.fileId).remove();
-											}
-										},
-										'json'
-									);
-									
+									ImageDeleteAction($(this));									
 								});
 								
 								imgWrap.appendTo(newTopic.find(".image-list"));
@@ -148,7 +110,7 @@ $(document).ready(function(e) {
 								video.attr('src',url);
 								videoList.append(video);
 							});
-								
+							
 							newTopic.appendTo("#topic-container");
 							
 							newTopic.attr('id','new-topic-'+selectedTopic);
@@ -162,11 +124,126 @@ $(document).ready(function(e) {
 			return;
     });
 	
-	
+	SetupTopics();
 	
 	
 });
 
+function SetupTopics()
+{
+	$('.article_topic').each(function(index,element)
+		{
+			var newTopic = $(element);
+			
+			
+			newTopic.find(".save-button").click(function(e) {
+								e.preventDefault();
+								TopicSaveAction($(this));								
+							});
+							
+			newTopic.find(".delete-button").click(function(e) {
+				e.preventDefault();
+				TopicDeleteAction($(this));								
+			});
+			
+			newTopic.find(".add-image-button").fineUploader({
+				maxConnections:1,
+				request: {
+					endpoint: base_url+'admin/articles/UploadImage'
+				}
+			})
+			.on('submit', function(event, id, filename) {				
+     				$(this).fineUploader('setParams', {'id': $(this).parent().find(".topic_id").val()});
+  			})
+			.on('complete', function(event, id, filename, responseJSON){
+				
+				
+				var imgWrap = $(
+					'<div id="image_'+responseJSON.filename_we+'" > '+
+					'<img src = "'+base_url+responseJSON.file_url+'" id="img-'+responseJSON.filename_we+'" title="'+responseJSON.filename_we+'" />'+
+					'<div class="clear10" style="float:none;"></div>'+
+					'<a  class="delete-button AdminBut Delete" title="'+responseJSON.filename_we+'">Delete</a></div>'
+				);
+				
+				imgWrap.find('.delete-button').click(function(e){
+					e.preventDefault();
+					ImageDeleteAction($(this));									
+				});
+				
+				imgWrap.appendTo(newTopic.find(".image-list"));
+			});
+		
+			newTopic.find(".add-video-button").click(function(e){
+				e.preventDefault();
+				var videoList = $(newTopic.find('.video-list'));
+				var url = newTopic.find(".video_link").val();
+				videoList.html('');
+				var video = $('<embed width="420" height="345" type="application/x-shockwave-flash"></embed>');
+				video.attr('src',url);
+				videoList.append(video);
+			});
+			
+			
+		}
+	);
+}
+
+
+function TopicSaveAction(element)
+{
+	var topicId = $(element).parent().find(".topic-id").val();
+	var formData = $(element).parent().serialize();
+	var formElement =  $(element).parent();
+	
+	formElement.next().show();
+	formElement.hide();
+	
+	$.post( 
+		set_url+'saveTopic',  
+		formData, 
+		function(response) {
+			formElement.next().hide();
+			formElement.show();
+		},
+		'json');
+}
+
+function TopicDeleteAction(element)
+{
+	var formElement =  $(element).parent();
+	var formData = formElement.serialize();
+	
+	$.post( 
+		set_url+'deleteTopic',  
+		formData, 
+		function(response) {
+			if(response.success)
+			{
+				formElement.parent().remove();
+			}
+			else
+				console.log('deletion failed');
+		},
+		'json');
+}
+
+function ImageDeleteAction(element)
+{
+	var fileId = $(element).attr('title');
+	var topicId = $(element).parent().parent().parent().find(".topic-id").val();
+	
+	$.post( 
+		base_url+'admin/articles/DeleteImage',  
+		{ 'file': fileId, 'pid':topicId }, 
+		function(response) {
+			if(response.success)
+			{
+				$("#image_"+response.fileId).remove();
+			}
+		},
+		'json'
+	);
+}
 //{/literal}
 </script>
 	<div>
@@ -213,6 +290,38 @@ $(document).ready(function(e) {
         <button type="button" id="add-topic">+</button><br />
         
         <div id="topic-container">
+        	{foreach $topicList as $topic}
+        		{$topic->Refresh()}
+        	<div id="new-topic-{$topic->topic_id}" class="article_topic" >
+		    	<form class="topic-form">
+		            <input type="text" name="topic_heading" value="{$topic->topic_heading}" /><br />
+		            <textarea class="topic_body" name="topic_content" >{$topic->topic_content}</textarea><br />
+		            <div class="image-list">
+		            	{foreach $topic->GetImageList() as $img}
+		            	<div id="image_{$img['fileId']}" >
+						<img src = "{$base_url}{$img['fileUrl']}" id="img-{$img['fileId']}" title="{$img['fileId']}" />
+						<div class="clear10" style="float:none;"></div>
+						<a  class="delete-button AdminBut Delete" title="{$img['fileId']}">Delete</a></div>
+		            	{/foreach}
+		            </div>
+		            
+		            <div class="add-image-button">Add Image</div>
+		            
+		            
+		            
+		            <input class="video_link" />
+		            <button class="add-video-button">Add Video</button>
+		            
+		            <div class="video-list"></div>
+		            
+		            <br />
+		            <button class="save-button">Save</button>
+		            <button class="delete-button">Delete</button>
+		            <input type="hidden" name="topic_id" class="topic_id" value="{$topic->topic_id}"  />
+		        </form>
+		        <div class="loading-progrss" style="display:none" >Saving....</div>
+		    </div>
+        	{/foreach}
         </div>
     
     		

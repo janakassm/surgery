@@ -174,7 +174,7 @@ class qqFileUploader extends GeneralClass {
 			{
 				if( !is_dir($thumbDir) )
 				{
-					mkdir($thumbDir, 0665, TRUE);
+					mkdir($thumbDir, 0777, TRUE);
 				}
 				$this->resize($filePath, $dimentions['thumb']['width'], $dimentions['thumb']['height'], $fileThumbPath);
 			}

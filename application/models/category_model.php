@@ -13,14 +13,17 @@ class Category_model extends CI_Model {
 		self::$ci->load->library('Category');
 	}
 	
-	public static function Get( $id )
+	public static function Get( $id , $asArray = false)
 	{
 		
 		self::$db->where('category_id' , $id);
 		self::$db->limit(1);
 		$query = self::$db->get(self::$table);
 		
-		$result = $query->result('Category');
+		if($asArray)
+			$result = $query->result_array();
+		else
+			$result = $query->result('Category');
 		
 		if( count($result) > 0)
 			return $result[0];

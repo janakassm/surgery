@@ -155,7 +155,7 @@ class Article_Model extends GeneralModel {
 		
 	}
 	
-	public static function GetArticles($pageId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
+	public static function GetArticles($categoryId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
     {
     	self::$CI->load->library('Article');
 		   
@@ -170,8 +170,8 @@ class Article_Model extends GeneralModel {
 			self::$db->select($selectQuery);	
 		}
 		
-		if( !is_null($pageId) )
-			self::$db->where('article_page_id', $pageId);
+		if( !is_null($categoryId) )
+			self::$db->where('article_category', $categoryId);
 		
 		
 		
@@ -184,8 +184,10 @@ class Article_Model extends GeneralModel {
 			self::$db->or_like('article_content',$searchTag);
 		}
 		
+		self::$db->where('article_is_saved' , true);
+		
 		self::$db->order_by('article_sort_count','ASC');
-		self::$db->order_by('article_page_id','ASC');
+		self::$db->order_by('article_category','ASC');
 		
     	$query = self::$db->get(self::$table);
         
