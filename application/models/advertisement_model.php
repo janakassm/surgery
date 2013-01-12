@@ -125,7 +125,7 @@ class Advertisement_Model extends GeneralModel {
 		
 	}
 	
-	public static function GetAdvertisements($articleId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
+	public static function GetAdvertisements($isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
     {
     	self::$CI->load->library('Advertisement');
 		   
@@ -149,11 +149,21 @@ class Advertisement_Model extends GeneralModel {
 			self::$db->or_like('advertisement_body',$searchTag);
 		}
 		
+		
+		
+		
     	$query = self::$db->get(self::$table);
         
         $result = $query->result('Advertisement');
 		
 		return $result;
+	}
+	
+	public static function GetArticleAdvertisements($articleId , $isPublic = NULL, $searchTag = NULL )
+	{
+		self::$CI->load->library('Advertisement');
+		
+		//self::$db->where('adver' , $isPublic);
 	}
 	
 	public static function InsertImage( $id = NULL, $fileData )

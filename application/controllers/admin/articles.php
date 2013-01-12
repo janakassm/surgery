@@ -57,6 +57,7 @@ class Articles extends Guest_Controller {
 		$js_links = array('tiny_mce/tiny_mce.js','jQuery.validity.min.js','jquery.autosize.js','jquery.fineuploader-3.0.min.js');
 		
 		$categoryList = Category::GetCategories( NULL, 0);
+		$advertisementList = Advertisement::GetAdvertisements();
 
 		$tplData = $this->GetCommonTpls('Add Article',NULL,NULL,NULL,$js_links,$css_links);
 		
@@ -100,6 +101,8 @@ class Articles extends Guest_Controller {
 				
 		}
 		
+		
+		$tplData['advertisementList'] =  $advertisementList;
 		
 		$tplData['categoryList'] = $categoryList;
 		
