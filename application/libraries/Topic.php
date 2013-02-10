@@ -11,6 +11,7 @@ class Topic extends GeneralClass
 	public $topic_sort_count = 0;
 	
 	private $img_list = NULL;
+	private $video_list = NULL;
 	
 	public function __construct()
 	{
@@ -41,7 +42,7 @@ class Topic extends GeneralClass
 			
 			foreach($imgList as $img)
 			{
-				$this->img_list[$img->topic_image_index] = array('fileUrl'=>$img->topic_image_url, 'fileThumbUrl'=>$img->topic_image_thumb_url, 'fileId'=>$img->topic_image_id);
+				$this->img_list[$img->topic_image_index] = array('fileUrl'=>$img->topic_image_url, 'fileThumbUrl'=>$img->topic_image_thumb_url, 'fileId'=>$img->topic_image_id, 'fileIndex'=>$img->topic_image_index);
 			}
 		}
 	}
@@ -89,6 +90,12 @@ class Topic extends GeneralClass
 		return $this->img_list;		
 	}
 	
+	public function GetVideo()
+	{
+		return $this->video_list;
+	}
+	
+	
 	public function InsertImage($fileData)
 	{
 		if( !is_null($fileData) )
@@ -110,6 +117,21 @@ class Topic extends GeneralClass
 		return false;
 	}
 	
+	public function InsertVideo($url)
+	{
+		if( trim($url) != "" && !empty($this->topic_id) )
+		{
+			return Topic_Model::InsertVideo($this->topic_id, $url);
+		}
+		
+		return false;
+	}
+	
+	public function DeleteVideo($videoId)
+	{
+		return Topic_Model::DeleteVideo($this->topic_id, $videoId);
+	}
+	
 	public function DeleteImage($fileId = NULL)
 	{
 		if( !is_null($fileId) )
@@ -121,6 +143,7 @@ class Topic extends GeneralClass
 					unset($this->img_list[$fileId]);
 					return true;
 				}
+				
 			}
 		}
 		

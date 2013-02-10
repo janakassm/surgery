@@ -222,15 +222,15 @@ class Article extends GeneralClass
 	
 	public function Delete()
 	{
-		if ( Article_Model::Delete($this->article_id) )
+		if ( Article_Model::Detele($this->article_id) )
 		{
-			foreach ($this->img_list as $index => $image) {
+			/*foreach ($this->img_list as $index => $image) {
 				$this->DeleteImage($index);
 			}
 			
 			foreach ($this->img_list_360 as $index => $image) {
 				$this->DeleteImage360($index);
-			}
+			}*/
 			return true;
 		}
 		

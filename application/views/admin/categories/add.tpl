@@ -39,8 +39,8 @@ optgroup option{
     <div>
     
         <form method="post">
-            <input type="radio" name="category_level"  value="0" checked />Level 0<br />
-            <input type="radio" name="category_level"  value="1" />Level 1<br />
+            <input type="radio" name="category_level"  value="0" checked />Top Level<br />
+            <input type="radio" name="category_level"  value="1" />Sub level 1<br />
             <input type="radio" name="category_level"  value="2" />Level 2<br />
             <input type="radio" name="category_level"  value="3" />Level 3<br />
             

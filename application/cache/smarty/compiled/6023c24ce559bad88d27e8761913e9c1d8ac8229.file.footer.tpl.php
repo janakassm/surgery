@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '6023c24ce559bad88d27e8761913e9c1d8ac8229' => 
     array (
       0 => 'application\\views\\common\\footer.tpl',
-      1 => 1350307248,
+      1 => 1360258299,
       2 => 'file',
     ),
   ),
@@ -15,19 +15,35 @@ $_valid = $_smarty_tpl->decodeProperties(array (
   'function' => 
   array (
   ),
+  'version' => 'Smarty-3.1.7',
+  'unifunc' => 'content_477a606b88783',
   'variables' => 
   array (
-    'csslinks' => 0,
     'base_url' => 0,
+    'csslinks' => 0,
     'csslink' => 0,
     'jslinks' => 0,
     'jslink' => 0,
   ),
   'has_nocache_code' => false,
-  'version' => 'Smarty-3.1.7',
-  'unifunc' => 'content_477a606b88783',
 ),false); /*/%%SmartyHeaderCode%%*/?>
-<?php if ($_valid && !is_callable('content_477a606b88783')) {function content_477a606b88783($_smarty_tpl) {?></div>
+<?php if ($_valid && !is_callable('content_477a606b88783')) {function content_477a606b88783($_smarty_tpl) {?>		</div>
+    </div>
+    <div class="rightWrapper">
+    	<div class="socialMediaBlock"></div>
+        <div class="subscriberBlock">
+        	<div class="subscriberBlockMessage"></div>
+            <div class="subscriberBlockContent">
+            	<input class="inputText emailBox" type="text" value="Enter your email address"  />
+                <div class="clear5"></div>
+                <input class="subscribeButton inputButton"  type="button" value="Subscribe Now!!!" />
+            </div>
+        </div>
+        <div class="clear10"></div>
+	</div>
+</div>
+<div class="addonImage"><img src="<?php echo $_smarty_tpl->tpl_vars['base_url']->value;?>
+images/common/stethoscope.png" width="373" height="148" /></div>
 </body>
 
 <!--load custom css links -->

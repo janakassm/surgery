@@ -3,8 +3,10 @@ class Topic_Model extends GeneralModel {
 	
 	private static $table = 'topic';
 	private static $images_table = 'topic_image';
+	private static $video_table = 'topic_video';
 	private static $user_data = './user_data/topics/';
 	private static $user_data_url = 'user_data/topics/';
+	
 	
 	public function __construct()
     {
@@ -35,14 +37,14 @@ class Topic_Model extends GeneralModel {
 		
 		$id = false;
 		
-		self::$db->select_min('topic_sort_count','min_count');
+		self::$db->select_max('topic_sort_count','max_count');
 		
 		$res = self::$db->get(self::$table);
 		
 		$value = $res->result();
-		$min_count = ($value[0]->min_count)-1;
+		$max_count = ($value[0]->max_count)+1;
 		
-		$data['topic_sort_count'] = $min_count;
+		$data['topic_sort_count'] = $max_count;
 		
 		self::$db->insert(self::$table,$data);
 		
@@ -165,6 +167,7 @@ class Topic_Model extends GeneralModel {
 		}
 		
 		self::$db->order_by('topic_sort_count','ASC');
+		self::$db->order_by('topic_id','ASC');
 		self::$db->order_by('topic_article','ASC');
 		
     	$query = self::$db->get(self::$table);
@@ -191,7 +194,23 @@ class Topic_Model extends GeneralModel {
 		}
 		return false;
 	}
-
+	
+	public static function InsertVideo( $topicId, $url )
+	{
+		if( !is_null($topicId) )
+		{
+			$data = array(
+				'video_topic' => $topicId,
+				'video_url' => $url
+			);
+			self::$db->insert(self::$video_table,$data);
+			$id = self::$db->insert_id();
+			return $id;
+		}
+		return false;
+	}
+	
+	
 	public static function DeleteImage( $fileData = NULL )
 	{
 		if( !empty($fileData) )
@@ -208,12 +227,37 @@ class Topic_Model extends GeneralModel {
 		return false;
 	}
 	
+	public static function DeleteVideo( $topicId, $videoId )
+	{
+		if( !empty($fileData) )
+		{
+			self::$db->where('video_id',$videoId);
+			self::$db->where('topic_id',$topicId);
+			self::$db->delete(self::$video_table);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
 	public static function GetImageList( $id = NULL )
 	{
 		if( !is_null($id) )
 		{
 			self::$db->where('topic_id',$id);
 			$query = self::$db->get(self::$images_table);
+        	return $query->result();
+		}
+		return NULL;
+	}
+
+	public static function GetVideoList( $topicId = NULL )
+	{
+		if( !is_null($topicId) )
+		{
+			self::$db->where('topic_id',$topicId);
+			$query = self::$db->get(self::$video_table);
         	return $query->result();
 		}
 		return NULL;

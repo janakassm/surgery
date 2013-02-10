@@ -89,8 +89,11 @@ if (!function_exists('convertDate'))
 
 if (!function_exists('convertToMySQLdatetime'))
 {
-	function convertToMySQLdatetime($date) {
-		return date("Y-m-d H:i:s", strtotime($date));
+	function convertToMySQLdatetime($date,$format = 'Y-m-d') {
+		
+		$mysqlDate = DateTime::createFromFormat($format,$date);
+		return $mysqlDate->format('Y-m-d H:i:s');
+		//return date("Y-m-d H:i:s", strtotime($date));
 	}
 }
 
@@ -158,7 +161,7 @@ if ( !function_exists('infDate') )
 {
 	function infDate()
 	{
-		return '2038-01-01';
+		return '9999-12-31';
 	}
 }
 
@@ -166,8 +169,15 @@ if ( !function_exists('userDate') )
 {
 	function userDate($mysqlDate)
 	{
-		$date = new DateTime($mysqlDate);
-		return $date->format('d/m/Y');
+		try
+		{
+			$date = new DateTime($mysqlDate);
+			return $date->format('d/m/Y');
+		}
+		catch(Exception $exception)
+		{
+			return date('d/m/Y');
+		}
 		//return date('d/m/Y', strtotime($mysqlDate));
 	}
 }
@@ -187,3 +197,76 @@ if ( !function_exists('now') )
 		return date('Y-m-d H:i:s');
 	}
 }
+
+if ( !function_exists('dateDiff') )
+{
+	function dateDiff($date1, $date2)
+	{
+		$d1 = new DateTime($date1);
+		$d2 = new DateTime($date2);
+		
+		return $d1->diff($d2);
+	}
+}
+
+if ( !function_exists('isUserDate') )
+{
+	function isUserDate($date)
+	{
+		if (substr_count($date, '/') == 2) 
+	    {
+	        list($d, $m, $y) = explode('/', $date);
+	        return checkdate($m, $d, sprintf('%04u', $y));
+	    }
+	
+	    return false;
+	}
+}
+
+if( !function_exists('isSameDate') )
+{
+	function isSameDate($date1, $date2)
+	{
+		$dateDiff = dateDiff($date1, $date2);
+		if($dateDiff->days !== false && $dateDiff->days === 0)
+			return true;
+		else
+			return false;
+	}
+}
+
+
+if( !function_exists('smartyUnset') )
+{
+	function smartyUnset($var)
+	{
+		unset($var);
+	}
+}
+
+
+/*!!!!fix this function, not working properly when date is over 12*/
+if ( !function_exists('isValidDate') )
+{
+	function isValidDate($dateString)
+	{
+		try
+		{
+			new DateTime($dateString);			
+			return true;
+		}
+		catch(Exception $e)
+		{
+			return false;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+

@@ -5,9 +5,23 @@ var base_url = "{$base_url}";
 var get_url ="{$base_url}xcalls/get/";
 var set_url ="{$base_url}xcalls/set/"; 
 var selectedArticle = "{$article->article_id}";
+var convertText =  false;
 //{literal}
 $(document).ready(function(e) {
+   	$("textarea").autosize();
    
+	$("input[type=text]").bind("keyup select change",function(e){
+		$(this).val(TextFormat($(this).val()));
+	});
+	
+	$("textarea").bind("keyup select change",function(e){
+		$(this).val(TextFormat($(this).val()));
+	});
+	
+	$("#usingAbhaya").change(function(e){
+		convertText = $(this).is(':checked');
+	});
+	
 	
 	
 	$("input[name='category_level']").change(function(e) {        
@@ -65,7 +79,7 @@ $(document).ready(function(e) {
 								TopicSaveAction($(this));								
 							});
 							
-							newTopic.find(".delete-button").click(function(e) {
+							newTopic.find(".topic-delete-button").click(function(e) {
 								e.preventDefault();
 								TopicDeleteAction($(this));								
 							});
@@ -105,6 +119,9 @@ $(document).ready(function(e) {
 								e.preventDefault();
 								var videoList = $(newTopic.find('.video-list'));
 								var url = newTopic.find(".video_link").val();
+								
+								
+								
 								videoList.html('');
 								var video = $('<embed width="420" height="345" type="application/x-shockwave-flash"></embed>');
 								video.attr('src',url);
@@ -114,6 +131,16 @@ $(document).ready(function(e) {
 							newTopic.appendTo("#topic-container");
 							
 							newTopic.attr('id','new-topic-'+selectedTopic);
+							
+							newTopic.find("input[type=text]").bind("keyup select change",function(e){
+								$(this).val(TextFormat($(this).val()));
+							});
+							
+							newTopic.find("textarea").bind("keyup select change",function(e){
+								$(this).val(TextFormat($(this).val()));
+							});
+							
+							newTopic.find("textarea").autosize();
 							
 							newTopic.show();
 						}
@@ -141,9 +168,14 @@ function SetupTopics()
 								TopicSaveAction($(this));								
 							});
 							
-			newTopic.find(".delete-button").click(function(e) {
+			newTopic.find(".topic-delete-button").click(function(e) {
 				e.preventDefault();
 				TopicDeleteAction($(this));								
+			});
+			
+			newTopic.find('.image-list').find(".delete-button").click(function(e) {
+				e.preventDefault();
+				ImageDeleteAction($(this));								
 			});
 			
 			newTopic.find(".add-image-button").fineUploader({
@@ -175,12 +207,15 @@ function SetupTopics()
 		
 			newTopic.find(".add-video-button").click(function(e){
 				e.preventDefault();
+				AddVideoAction(this);
+				/*
 				var videoList = $(newTopic.find('.video-list'));
 				var url = newTopic.find(".video_link").val();
 				videoList.html('');
 				var video = $('<embed width="420" height="345" type="application/x-shockwave-flash"></embed>');
 				video.attr('src',url);
 				videoList.append(video);
+				*/
 			});
 			
 			
@@ -191,7 +226,7 @@ function SetupTopics()
 
 function TopicSaveAction(element)
 {
-	var topicId = $(element).parent().find(".topic-id").val();
+	var topicId = $(element).parent().find(".topic_id").val();
 	var formData = $(element).parent().serialize();
 	var formElement =  $(element).parent();
 	
@@ -222,7 +257,7 @@ function TopicDeleteAction(element)
 				formElement.parent().remove();
 			}
 			else
-				console.log('deletion failed');
+				alert('deletion failed');
 		},
 		'json');
 }
@@ -230,8 +265,7 @@ function TopicDeleteAction(element)
 function ImageDeleteAction(element)
 {
 	var fileId = $(element).attr('title');
-	var topicId = $(element).parent().parent().parent().find(".topic-id").val();
-	
+	var topicId = $(element).parent().parent().parent().find(".topic_id").val();
 	$.post( 
 		base_url+'admin/articles/DeleteImage',  
 		{ 'file': fileId, 'pid':topicId }, 
@@ -244,16 +278,77 @@ function ImageDeleteAction(element)
 		'json'
 	);
 }
+
+function VideoDeleteAction(element)
+{
+	var video_id = $(element).attr('title');
+	var topicId = $(element).parent().parent().parent().find(".topic_id").val();
+	
+	$.post( 
+		set_url+'deleteTopicVideo',  
+		{ 'video_id': video_id, 'topic_id':topicId }, 
+		function(response) {
+			if(response.success)
+			{
+				$("#video_"+response.video_id).remove();
+			}
+		},
+		'json'
+	);
+}
+
+function AddVideoAction(element)
+{
+	var urlString = $(element).parent().find('.video_link').val();
+	var topicId = $(element).parent().find(".topic_id").val();
+	var videoListElement =  $(element).parent().find(".video-list");
+	
+	$.post( 
+	set_url+'addTopicVideo',  
+	{ 'url': urlString, 'topic_id':topicId },
+	function(response) {
+		if(response.success)
+		{
+			
+			videoListElement.html('');
+			var video = $('<div id="video_'+response.id+'" > '+
+							'<embed width="420" height="345" src="'+response.url+'" type="application/x-shockwave-flash"></embed>'+
+							'<div class="clear10" style="float:none;"></div>'+
+							'<a  class="delete-button AdminBut Delete" title="'+response.id+'">Delete</a></div>');
+							
+			video.find('.delete-button').click(function(e){
+					e.preventDefault();
+					VideoDeleteAction($(this));									
+				});				
+			
+			videoListElement.append(video);
+		}
+		else
+			console.log('adding failed');
+	},
+	'json');
+}
+
+
+function TextFormat(text)
+{
+	if(convertText)
+		return convertFromAbaya(text); //decleared in unicode-convert.js
+	else
+		return text;
+}
+
 //{/literal}
 </script>
 	<div>
     	{$msg}
     </div>
     <div >
+    	<div><input type="checkbox" id="usingAbhaya" value="1" /> I'm using Abhaya font</div>
         <form method="post">
         	
             <select id="parent-category" name="article_category" >
-            	<option value="0">No parent</option>
+            	<option value="0">No Category</option>
             	{foreach $categoryList as $category}
                 	{$lvl1childCategories = $category->GetChildCategories()}
                 	<option value="{$category->category_id}" class="menu-level-1"><span  class="sinhala " >{$category->category_title_sin}</span></option>
@@ -283,7 +378,7 @@ function ImageDeleteAction(element)
                 {/foreach}
             </select><br />
             
-            Article title<input type="text" name="article_title" value="{$article->article_title}" /><br />
+            Article title<input type="text" name="article_title" value="{$article->article_title}" class="inputText" /><br />
             
             <button type="submit" name="save" value="1">Save article</button><br />
         </form>
@@ -294,14 +389,14 @@ function ImageDeleteAction(element)
         		{$topic->Refresh()}
         	<div id="new-topic-{$topic->topic_id}" class="article_topic" >
 		    	<form class="topic-form">
-		            <input type="text" name="topic_heading" value="{$topic->topic_heading}" /><br />
-		            <textarea class="topic_body" name="topic_content" >{$topic->topic_content}</textarea><br />
+		            <input type="text" name="topic_heading" value="{$topic->topic_heading}" class="inputText" /><br />
+		            <textarea class="topic_body inputText" name="topic_content" >{$topic->topic_content}</textarea><br />
 		            <div class="image-list">
 		            	{foreach $topic->GetImageList() as $img}
-		            	<div id="image_{$img['fileId']}" >
-						<img src = "{$base_url}{$img['fileUrl']}" id="img-{$img['fileId']}" title="{$img['fileId']}" />
+		            	<div id="image_{$img['fileIndex']}" >
+						<img src = "{$base_url}{$img['fileUrl']}" id="img-{$img['fileIndex']}" title="{$img['fileIndex']}" />
 						<div class="clear10" style="float:none;"></div>
-						<a  class="delete-button AdminBut Delete" title="{$img['fileId']}">Delete</a></div>
+						<a  class="delete-button AdminBut Delete" title="{$img['fileIndex']}">Delete</a></div>
 		            	{/foreach}
 		            </div>
 		            
@@ -316,7 +411,7 @@ function ImageDeleteAction(element)
 		            
 		            <br />
 		            <button class="save-button">Save</button>
-		            <button class="delete-button">Delete</button>
+		            <button class="topic-delete-button">Delete</button>
 		            <input type="hidden" name="topic_id" class="topic_id" value="{$topic->topic_id}"  />
 		        </form>
 		        <div class="loading-progrss" style="display:none" >Saving....</div>
@@ -324,14 +419,26 @@ function ImageDeleteAction(element)
         	{/foreach}
         </div>
     
-    		
+    	<div>
+        	<select>
+            	<option value="0">No Advertisement</option>
+                {foreach $advertisementList as $advertisement }
+                    <option value="{$advertisement->advertisement_id}">{$advertisement->advertisement_title}</option>
+                {/foreach}
+            </select>
+        </div>
+    	<button type="button" id="add-advertisement">+</button><br />
+        
+        <div id="adverticement-container">
+        	
+        </div>
     </div>
    
     
     <div id="new-topic-tpl" style="display:none">
     	<form class="topic-form">
-            <input type="text" name="topic_heading" /><br />
-            <textarea class="article_body" name="topic_content" ></textarea><br />
+            <input type="text" name="topic_heading" class="inputText" /><br />
+            <textarea class="article_body inputText" name="topic_content"  ></textarea><br />
             <div class="image-list"></div>
             
             <div class="add-image-button">Add Image</div>
@@ -340,8 +447,8 @@ function ImageDeleteAction(element)
             <div class="video-list"></div>
             <br />
             <button class="save-button">Save</button>
-            <button class="delete-button">Delete</button>
-            <input type="hidden" name="topic_id" class="topic-id"  />
+            <button class="topic-delete-button">Delete</button>
+            <input type="hidden" name="topic_id" class="topic_id"  />
         </form>
         <div class="loading-progrss" style="display:none" >Saving....</div>
     </div>

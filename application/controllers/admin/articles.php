@@ -6,6 +6,7 @@ class Articles extends Guest_Controller {
 	{
 		parent::__construct();
 		$this->load->library('Article');
+		$this->load->library('Advertisement');
 		$this->load->library('Topic');
 		$this->load->library('Category');
 	}
@@ -17,7 +18,7 @@ class Articles extends Guest_Controller {
 		$this->session->unset_userdata('admin_current_article_id');
 		
 		$css = array('style-admin.css');
-		$js_links = array('jquery.autosize.js','jquery.fineuploader-3.0.min.js');
+		$js_links = array('jquery.autosize-min.js','jquery.fineuploader-3.0.min.js');
 		
 		$tplData = $this->GetCommonTpls('Add New Cateogry',NULL,NULL,NULL,NULL,$css);
 		
@@ -54,7 +55,7 @@ class Articles extends Guest_Controller {
 		
 		
 		$css_links = array('style-admin.css');
-		$js_links = array('tiny_mce/tiny_mce.js','jQuery.validity.min.js','jquery.autosize.js','jquery.fineuploader-3.0.min.js');
+		$js_links = array('tiny_mce/tiny_mce.js','jQuery.validity.min.js','jquery.autosize-min.js','jquery.fineuploader-3.0.min.js');
 		
 		$categoryList = Category::GetCategories( NULL, 0);
 		$advertisementList = Advertisement::GetAdvertisements();
@@ -97,7 +98,9 @@ class Articles extends Guest_Controller {
 		}
 		else if($this->input->post('add_advertisement'))
 		{
-			$this->session->set_userdata('back_to','admin/articles/add');
+			$article->article_is_saved = true;
+			$article->Save();
+			$this->session->set_userdata('back_to','admin/articles/edit/id='.$article->article_id);
 				
 		}
 		
@@ -124,11 +127,11 @@ class Articles extends Guest_Controller {
 		
 		if( !$article->IsArticle() )
 		{
-			redirect( base_url('admin/articles/?error=no_property') );
+			redirect( base_url('admin/articles/?error=no_article') );
 		}
 		
 		$css_links = array('style-admin.css');
-		$js_links = array('tiny_mce/tiny_mce.js','jQuery.validity.min.js','jquery.autosize.js','jquery.fineuploader-3.0.min.js');
+		$js_links = array('tiny_mce/tiny_mce.js','jQuery.validity.min.js','jquery.autosize-min.js','jquery.fineuploader-3.0.min.js');
 		
 		$tplData = $this->GetCommonTpls('Edit Article',NULL,NULL,NULL,$js_links,$css_links);
 		
@@ -159,7 +162,7 @@ class Articles extends Guest_Controller {
 			{
 				$article->ParseToObject( $this->input->post() );
 				$article->Save();				
-				redirect( base_url('admin/articles?view=view_topics') );
+				//redirect( base_url('admin/articles?view=view_topics') );
 				
 			}
 			else 
@@ -170,7 +173,8 @@ class Articles extends Guest_Controller {
 		}
 		else if($this->input->post('add_advertisement'))
 		{
-			$this->session->set_userdata('back_to','admin/articles/add');
+			$this->session->set_userdata('back_to','admin/articles/edit/id='.$article->article_id);
+				
 		}
 		
 		$tplData['article'] = $article;
@@ -178,6 +182,25 @@ class Articles extends Guest_Controller {
 		$this->parser->parse("admin/articles/add-edit.tpl",$tplData);
 	}
 	
+	public function delete()
+	{
+		$articleId = intval($this->input->get('id'));
+		if( is_null($articleId) || $articleId == 0)
+		{
+			redirect( base_url('admin/articles/?error=no_id') );
+		}
+		
+		$article = new Article();
+		$article->article_id = $articleId;
+		
+		if( !$article->IsArticle() )
+		{
+			redirect( base_url('admin/articles/?error=no_article') );
+		}
+		
+		$article->Delete();
+		redirect( base_url('admin/articles/?delete_success=1') );
+	}
 	
 	public function UploadImage()
 	{

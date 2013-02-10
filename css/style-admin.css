@@ -18,3 +18,6 @@ body{
 .qq-upload-list{
 	display:none;
 }
+.inputText{
+	min-width:400px;
+}

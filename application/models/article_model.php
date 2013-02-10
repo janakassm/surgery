@@ -31,7 +31,7 @@ class Article_Model extends GeneralModel {
 		return NULL;
 	}
 	
-	public function Get( $id )
+	public static function Get( $id )
 	{
 		
 		$where = array('article_id'=>$id);
@@ -72,7 +72,7 @@ class Article_Model extends GeneralModel {
 		
 	}
 	
-	public static function Update( $id = NULL , $data = array() )
+	public static function Update( $id  , $data )
 	{	
 		if( !is_null($id) )
 		{
@@ -87,14 +87,14 @@ class Article_Model extends GeneralModel {
 		
 	}
 	
-	public static function Detele( $id = NULL)
+	public static function Detele( $id )
 	{
 		
 		if( !is_null($id) )
 		{
-			
+			$data = array('article_is_deleted' => true);
 			self::$db->where('article_id', $id);
-			self::$db->delete(self::$table);
+			self::$db->update(self::$table,$data);
 			
 			return true;
 		}
@@ -185,6 +185,7 @@ class Article_Model extends GeneralModel {
 		}
 		
 		self::$db->where('article_is_saved' , true);
+		self::$db->where('article_is_deleted' , false);
 		
 		self::$db->order_by('article_sort_count','ASC');
 		self::$db->order_by('article_category','ASC');

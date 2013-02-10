@@ -7,10 +7,22 @@ class TemplateManager {
 		$this->CI = & get_instance();
 	}
 	
-	public function GetTempletes($gdata = array(),$hdata = array(),$fdata = array(),$addtpl=array())
+	public function GetTempletes($gdata = null,$hdata = array(),$fdata = array(),$addtpl=array())
 	{
+		
+		if(is_null($gdata))
+			$gdata = array();
+		
+		/*generate categories*/
+		$gdata['categoryList'] = Category::GetCategories();
+		//_var_dump($gdata);
+		
 		$data = array();
 		$headdata = array_merge($hdata,$gdata);
+		
+		
+		
+		
 		
 		$data['headder'] = $this->CI->parser->parse("common/header.tpl",$headdata,true);
 		$footdata = array_merge($fdata,$gdata);

@@ -10,14 +10,11 @@ class Advertisements extends Guest_Controller {
 	
 	public function index()
 	{
-		$tplData = $this->GetCommonTpls('Manage advertisements');
-		
-		
 		
 		$css = array('style-admin.css');
 		$js_links = array('jquery.autosize.js','jquery.fineuploader-3.0.min.js');
 		
-		$tplData = $this->GetCommonTpls('Add New Cateogry',NULL,NULL,NULL,NULL,$css);
+		$tplData = $this->GetCommonTpls('Manage advertisements',NULL,NULL,NULL,NULL,$css);
 		
 		$this->parser->parse("admin/advertisements/index.tpl",$tplData);
 	}

@@ -125,7 +125,7 @@ class Advertisement_Model extends GeneralModel {
 		
 	}
 	
-	public static function GetAdvertisements($isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
+	public static function GetAdvertisements($isPublic = true, $searchTag = NULL, $selectedColumns = NULL )
     {
     	self::$CI->load->library('Advertisement');
 		   
@@ -150,10 +150,11 @@ class Advertisement_Model extends GeneralModel {
 		}
 		
 		
-		
+		self::$db->where('advertisement_is_saved' , true);
 		
     	$query = self::$db->get(self::$table);
         
+		//_var_dump(self::$db->last_query());
         $result = $query->result('Advertisement');
 		
 		return $result;

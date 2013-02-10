@@ -162,9 +162,9 @@ class Advertisement extends GeneralClass
 		return Advertisement_Model::Update( $this->advertisement_id, $data );
 	}
 	
-	public static function GetAdvertisements($articleId =NULL,$searchTag = NULL)
+	public static function GetAdvertisements($isPublic = true,$searchTag = NULL)
 	{
-		return Advertisement_Model::GetAdvertisements($articleId,$searchTag);
+		return Advertisement_Model::GetAdvertisements($isPublic, $searchTag);
 	}
 	
 	
