@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'f14060aa0cac70d8315d0f12aa8c81f4bde4e540' => 
     array (
       0 => 'application\\views\\admin\\categories\\index.tpl',
-      1 => 1360665435,
+      1 => 1360665713,
       2 => 'file',
     ),
   ),
@@ -59,7 +59,6 @@ admin/categories/add" class="white-btn btn" style="">Add Category</a>
 
 </select>
 <button type="submit" name="edit" value="1" id="mainMenuEdit" class="green-btn">Edit</button>
-<button type="button" id="mainMenuEdit" class="red-btn">Delete</button>
 <?php }else{ ?>
 <label class="info">No Items</label>
 <?php }?>
@@ -75,7 +74,6 @@ admin/categories/add" class="white-btn btn" style="">Add Category</a>
 
 </select>
 <button type="submit" name="edit" value="1" id="mainMenuEdit" class="green-btn">Edit</button>
-<button type="button" id="mainMenuEdit" class="red-btn">Delete</button>
 <?php }else{ ?>
 <label class="info">No Items</label>
 <?php }?>
@@ -91,7 +89,6 @@ admin/categories/add" class="white-btn btn" style="">Add Category</a>
 
 </select>
 <button type="submit" name="edit" value="1" id="mainMenuEdit" class="green-btn">Edit</button>
-<button type="button" id="mainMenuEdit" class="red-btn">Delete</button>
 <?php }else{ ?>
 <label class="info">No Items</label>
 <?php }?>

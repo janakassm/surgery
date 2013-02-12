@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'a900918c137f88a4ff534b987a4bf6ab51ae0047' => 
     array (
       0 => 'application\\views\\admin\\categories\\add-edit.tpl',
-      1 => 1360665757,
+      1 => 1360668039,
       2 => 'file',
     ),
   ),
@@ -52,6 +52,28 @@ $(document).ready(function(e) {
 	else
 		$("#category-level-"+selected_level).trigger('click');
 	
+	$("#messagebox").dialog({
+      resizable: false,
+	  autoOpen: false,
+	  modal:true,
+	  height:215,
+	  width:500,
+      buttons: {
+        "Yes & Delete": function() {
+			var delAction = $('<input type="hidden" name="delete" value="1" />');
+          	delAction.appendTo("#submitForm");
+			$("#submitForm").submit();
+			
+        },
+        "No": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+	
+	$("#delete-category").click(function(e){
+		$("#messagebox").dialog("open");
+	});
 	
 });
 
@@ -87,6 +109,7 @@ optgroup option{
 	padding-left:10px;
 }
 
+
 </style>
 
 	<div>
@@ -96,7 +119,7 @@ optgroup option{
     <div class="clear20"></div>
     <div>
     
-        <form method="post">
+        <form method="post" id="submitForm">
             <input id="category-level-0" type="radio" name="category_level"  value="0" checked />Main Menu
             <div class="clear2"></div>
             <input id="category-level-1" type="radio" name="category_level"  value="1" />Side Menu
@@ -121,7 +144,7 @@ optgroup option{
             <a class="grey-btn btn" href="<?php echo $_smarty_tpl->tpl_vars['base_url']->value;?>
 admin/categories">Back</a>
             <button type="submit" name="save" value="1" class="green-btn" style="float:right">Save Category</button>
-            <button type="button" id="mainMenuEdit" class="red-btn" style="float:right">Delete</button>
+            <button type="button" id="delete-category" class="red-btn" style="float:right">Delete</button>
             <div class="clear10"></div>
             
         </form>
@@ -132,7 +155,9 @@ admin/categories">Back</a>
         </div>
     </div>
     
-    
+<div title="Are you sure?" id="messagebox" >
+	<span class="warning message" style="padding-left:72px; vertical-align:middle">By deleting this category you will automatically delete sub categories under this category also. Are you sure you want to continue?</span>
+</div>    
 <?php echo $_smarty_tpl->tpl_vars['footer']->value;?>
 
 <?php }} ?>

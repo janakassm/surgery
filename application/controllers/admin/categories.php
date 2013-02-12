@@ -70,7 +70,7 @@ class Categories extends Guest_Controller {
 				if( $category->Save() )
 					$tplData['msg'] = wrapSuccess('Category saved');
 				else
-					$tplData['msg'] = wrapError('Opps something went worng');
+					$tplData['msg'] = wrapError('Opps something went worng while saving');
 				
 			}
 			else
@@ -78,6 +78,13 @@ class Categories extends Guest_Controller {
 				$tplData['msg'] = validation_errors('<div class="error">', '</div>');
 			}
 			
+		}
+		else if($this->input->post('delete'))
+		{
+			if( $category->Delete() )
+				redirect(base_url('admin/categories'));
+			else
+				$tplData['msg'] = wrapError('Opps something went worng while deleting');
 		}
 		
 		

@@ -20,9 +20,16 @@ $(document).ready(function(e) {
 	
 	$("#messagebox").dialog({
       resizable: false,
+	  autoOpen: false,
+	  modal:true,
+	  height:215,
+	  width:500,
       buttons: {
         "Yes & Delete": function() {
-          alert('delete');
+			var delAction = $('<input type="hidden" name="delete" value="1" />');
+          	delAction.appendTo("#submitForm");
+			$("#submitForm").submit();
+			
         },
         "No": function() {
           $( this ).dialog( "close" );
@@ -31,7 +38,7 @@ $(document).ready(function(e) {
     });
 	
 	$("#delete-category").click(function(e){
-		
+		$("#messagebox").dialog("open");
 	});
 	
 });
@@ -68,6 +75,7 @@ optgroup option{
 	padding-left:10px;
 }
 
+
 </style>
 {/literal}
 	<div>
@@ -76,7 +84,7 @@ optgroup option{
     <div class="clear20"></div>
     <div>
     
-        <form method="post">
+        <form method="post" id="submitForm">
             <input id="category-level-0" type="radio" name="category_level"  value="0" checked />Main Menu
             <div class="clear2"></div>
             <input id="category-level-1" type="radio" name="category_level"  value="1" />Side Menu
@@ -110,6 +118,6 @@ optgroup option{
     </div>
     
 <div title="Are you sure?" id="messagebox" >
-	<span class=".warning message" style="padding-left:72px;">By deleting this category you will automatically deleted sub categories under this category also. Are you sure you want to continue?</span>
+	<span class="warning message" style="padding-left:72px; vertical-align:middle">By deleting this category you will automatically delete sub categories under this category also. Are you sure you want to continue?</span>
 </div>    
 {$footer}
