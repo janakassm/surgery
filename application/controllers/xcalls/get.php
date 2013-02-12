@@ -15,14 +15,24 @@ class Get extends Guest_Controller {
 		
 		
 		
-		$this->_print($result->result());
+		jsonEcho($result->result());
 	}
 	
-	
-	
-	private function _print($output)
+	public function getCategoriesAsOptions()
 	{
-		echo json_encode($output);
+		$this->load->library('TemplateHelper');
+		
+		$level = $this->input->post('level');
+		$selId = $this->input->post('selected_id');
+		
+		if($level !== false)
+		{
+			$optionsHtml = TemplateHelper::GetCategoryByLevelAsOptions($level,NULL,$selId);
+			jsonEcho(array('success'=>true, 'html' => $optionsHtml));
+		}
+		
+		jsonEcho(array('success'=>false));
+		
 	}
 	
 }

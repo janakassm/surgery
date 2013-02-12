@@ -6,20 +6,22 @@ class Category extends GeneralClass {
 		$category_id = 0, 
 		$category_title_sin = NULL,
 		$category_title_eng = NULL,
-		$category_parent_id = 0,
-		$category_visible = false;
+		$category_parent_id = NULL,
+		$category_level = 0,
+		$category_visible = false,
+		$category_is_deleted = false;
 	
 		
 	public function __construct()
     {
         parent::__construct();
-		$this->CI->load->model('category_model','category_manager');		
+		$this->CI->load->model('Category_Model','category_manager');		
 			
 	}
 	
 	public function IsCategory($checkVisible=true, $refreshObject = true)
 	{
-		 $data = $this->CI->category_manager->Get($this->category_id,true);
+		 $data = Category_Model::Get($this->category_id,true);
 		 if( !empty($data) )
 		 {
 		 	if($refreshObject)
@@ -49,7 +51,12 @@ class Category extends GeneralClass {
 		if( is_null($this->category_id) )
 			return NULL;
 		
-		return Category_Model::GetCategories( NULL, $this->category_id );	
+		$result = Category_Model::GetCategories( $this->category_level, $this->category_id );
+		
+		if( !empty($result) )	
+			return $result;
+		
+		return false;
 	}
 	
 	/* General functions */
@@ -66,7 +73,21 @@ class Category extends GeneralClass {
 	public function Register()
 	{
 		$data = $this->GetObjectVars();
-		$this->CI->category_manager->Insert($data);
+		return Category_Model::Insert($data);
+	}
+	
+	public function Save()
+	{
+		$data = $this->GetObjectVars();
+		unset($data['category_id']);
+		Category_Model::Update($this->category_id, $data);
+		return true;
+	}
+	
+	public function Delete()
+	{
+		Category_Model::Delete($this->category_id);
+		return true;
 	}
 	
 	public static function GetCategories($level = NULL, $parent = NULL)

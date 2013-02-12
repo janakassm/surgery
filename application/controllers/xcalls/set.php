@@ -3,12 +3,31 @@
 class Set extends Guest_Controller {
 	
 	public $topic;
+	public $article;
 	
 	private function ValidateTopic($id)
 	{
+		$this->load->library('Topic');
+		
 		$this->topic = new Topic();
 		$this->topic->topic_id = $id;
 		if( $this->topic->IsTopic() )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	private function ValidateArticle($id)
+	{
+		$this->load->library('Article');
+		
+		$this->article = new Article();
+		$this->article->article_id = $id;
+		if( $this->article->IsArticle() )
 		{
 			return true;
 		}
@@ -22,10 +41,10 @@ class Set extends Guest_Controller {
 	{
 		$this->load->library('Topic');
 		
-		$articleId = $_POST['articleId'];
+		$articleId = $this->input->post('article_id');;
 		
 		$topic = new Topic();
-		if ( $topic->PreRegister($articleId) )
+		if ($this->ValidateArticle($articleId) && $topic->PreRegister($articleId) )
 		{
 			jsonEcho(array('success'=>true, 'topicId' => $topic->topic_id));
 		}
@@ -35,9 +54,7 @@ class Set extends Guest_Controller {
 	}
 	
 	public function saveTopic()
-	{
-		$this->load->library('Topic');
-		
+	{	
 		$data = $this->input->post();
 		
 		$topicId = $this->input->post('topic_id');
@@ -59,7 +76,6 @@ class Set extends Guest_Controller {
 	
 	public function deleteTopic()
 	{
-		$this->load->library('Topic');
 		
 		$data = $_POST;
 		
@@ -78,16 +94,16 @@ class Set extends Guest_Controller {
 	
 	public function addTopicVideo()
 	{
-		$this->load->library('Topic');
+		
 		
 		$url = $this->input->post('url');
 		$topicId = $this->input->post('topic_id');
 		
 		if( $this->ValidateTopic($topicId) )
 		{
-			if( $newId = $this->topic->InsertVideo($url))
+			if( $videoData = $this->topic->InsertVideo($url))
 			{
-				jsonEcho(array('success'=>true, 'url'=> $url,'video_id' => $newId));
+				jsonEcho(array('success'=>true, 'url'=> $videoData->video_url,'video_id' => $videoData->video_id, 'video_title' => $videoData->video_title));
 			}
 			else
 				jsonEcho(array('success'=>false));
@@ -97,7 +113,6 @@ class Set extends Guest_Controller {
 	
 	public function deleteTopicVideo()
 	{
-		$this->load->library('Topic');
 		
 		$videoId = $this->input->post('video_id');
 		$topicId = $this->input->post('topic_id');
@@ -119,4 +134,86 @@ class Set extends Guest_Controller {
 		}
 		
 	}
+	
+	public function addArticleCategory()
+	{
+		$this->load->library('Category');
+		
+		$catId = $this->input->post('cat_id');
+		$articleId = $this->input->post('article_id');
+		
+		$category = new Category();
+		$category->category_id = $catId;
+		
+		if( $this->ValidateArticle($articleId) && $category->IsCategory())
+		{
+			$categoryFound = false;
+			foreach ($this->article->GetCategoryList() as $tmpCategory)
+			{
+				if($tmpCategory->category_id == $catId)
+				{
+					$categoryFound = true;
+					break;
+				}
+			}
+			
+			
+			if (!$categoryFound)
+			{
+				if( $this->article->InsertCategory($category->category_id) )
+				{
+					
+					jsonEcho(array('success'=>true, 'category_id'=> $category->category_id,'category_title_sin' => $category->category_title_sin, 'category_title_eng' => $category->category_title_eng));
+				}
+				else
+					jsonEcho(array('success'=>false));
+				}
+			else 
+			{
+				jsonEcho(array('success'=>false, 'error' => 'Category already exist'));
+			}
+		}
+		
+	}
+	
+	public function deleteArticleCategory()
+	{
+		$this->load->library('Category');
+		
+		$catId = $this->input->post('cat_id');
+		$articleId = $this->input->post('article_id');
+		
+		
+		
+		if( $this->ValidateArticle($articleId) )
+		{
+			$categoryFound = false;
+			
+			
+			foreach ($this->article->GetCategoryList() as  $category)
+			{
+				if($category->category_id == $catId)
+				{
+					$catId = $category->category_id;
+					$categoryFound = true;
+					break;
+				}
+			}
+			
+			if ($categoryFound && $this->article->DeleteCategory($catId) )
+			{
+				jsonEcho( array('success'=>true, 'category_id' => $catId) );
+			}
+			else
+				jsonEcho(array('success'=>false, 'error' => 'Category Not found'));
+		}
+		else
+		{
+			jsonEcho(array('success'=>false, 'error' => 'Invalid article'));
+		}
+		
+	}
+
+	
+
 }

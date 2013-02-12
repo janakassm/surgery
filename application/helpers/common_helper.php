@@ -118,6 +118,17 @@ if (!function_exists('_var_dump'))
 	
 }
 
+if (!function_exists('_print_r'))
+{
+	function _print_r($data)
+	{
+		echo "<pre>";
+		echo print_r($data);
+		echo "</pre>";
+	}
+	
+}
+
 if (!function_exists('title2url'))
 {
 	function title2url($data)

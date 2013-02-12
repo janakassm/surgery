@@ -70,7 +70,7 @@ class Articles extends Guest_Controller {
 			
 			
 			$this->form_validation->set_rules('article_title', 'Article Title', 'trim|required' );
-			$this->form_validation->set_rules('article_category', 'Category', 'trim|required' );
+			//$this->form_validation->set_rules('article_category', 'Category', 'trim|required' );
 
 			//die();
 			
@@ -116,6 +116,7 @@ class Articles extends Guest_Controller {
 
 	public function edit()
 	{
+		
 		$articleId = intval($this->input->get('id'));
 		if( is_null($articleId) || $articleId == 0)
 		{
@@ -146,7 +147,7 @@ class Articles extends Guest_Controller {
 			
 			
 			$this->form_validation->set_rules('article_title', 'Article Title', 'trim|required' );
-			$this->form_validation->set_rules('article_category', 'Category', 'trim|required' );
+			//$this->form_validation->set_rules('article_category', 'Category', 'trim|required' );
 
 			//die();
 			

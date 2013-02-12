@@ -8,6 +8,7 @@ class Topic extends GeneralClass
 	public $topic_content = '';
 	public $topic_is_public = true;
 	public $topic_is_saved = true;
+	public $topic_is_deleted = false;
 	public $topic_sort_count = 0;
 	
 	private $img_list = NULL;
@@ -43,6 +44,13 @@ class Topic extends GeneralClass
 			foreach($imgList as $img)
 			{
 				$this->img_list[$img->topic_image_index] = array('fileUrl'=>$img->topic_image_url, 'fileThumbUrl'=>$img->topic_image_thumb_url, 'fileId'=>$img->topic_image_id, 'fileIndex'=>$img->topic_image_index);
+			}
+			
+			$vidList = Topic_Model::GetVideoList($this->topic_id);
+			
+			foreach($vidList as $vid)
+			{
+				$this->video_list[$vid->video_id] = $vid;
 			}
 		}
 	}
@@ -90,7 +98,7 @@ class Topic extends GeneralClass
 		return $this->img_list;		
 	}
 	
-	public function GetVideo()
+	public function GetVideoList()
 	{
 		return $this->video_list;
 	}
@@ -117,11 +125,32 @@ class Topic extends GeneralClass
 		return false;
 	}
 	
-	public function InsertVideo($url)
+	public function InsertVideo($youtubeId)
 	{
-		if( trim($url) != "" && !empty($this->topic_id) )
+		if( trim($youtubeId) != "" && !empty($this->topic_id) )
 		{
-			return Topic_Model::InsertVideo($this->topic_id, $url);
+			$ytid= "JYb-io13fOA";
+			$url = "http://gdata.youtube.com/feeds/api/videos/". $youtubeId ."?v=2" ;
+			$embedUrl = "http://www.youtube.com/embed/".$youtubeId;
+			$doc = new DOMDocument;
+			if( @$doc->load($url) !== false)
+			{
+				$title = $doc->getElementsByTagName("title")->item(0)->nodeValue;
+				
+				if( $newId =  Topic_Model::InsertVideo($this->topic_id, $youtubeId, $title, $embedUrl) )
+				{
+					$videoObj = new stdClass();
+					$videoObj->video_id = $newId;
+					$videoObj->video_topic = $this->topic_id;
+					$videoObj->video_title = $title;
+					$videoObj->video_url = $embedUrl;
+					
+					$this->video_list[$newId] = $videoObj;
+					return $videoObj;
+				} 
+			}
+			
+			return  false;
 		}
 		
 		return false;
@@ -129,7 +158,13 @@ class Topic extends GeneralClass
 	
 	public function DeleteVideo($videoId)
 	{
-		return Topic_Model::DeleteVideo($this->topic_id, $videoId);
+		if( Topic_Model::DeleteVideo($this->topic_id, $videoId) )
+		{
+			unset($this->video_list[$videoId]);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public function DeleteImage($fileId = NULL)

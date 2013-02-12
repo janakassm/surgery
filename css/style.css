@@ -4,16 +4,69 @@
 html,body,body > *{margin:0;padding:0;}
 ul,li,p{margin:0;padding:0; list-style:none;}
 a,a:hover,a:active,a:visited{text-decoration:none;}
-.inputText{border: 1px solid #CCCCCC; height:30px; width:200px;}
+.inputText{border: 1px solid #CCCCCC; height:30px; width:200px; padding-left:10px;}
 .inputButton{cursor:pointer}
 .clear{clear:both;}
 .clear5{clear:both;height:5px}
+.clear2{clear:both;height:2px}
 .clear10{clear:both;height:10px}
 .clear15{clear:both;height:15px}
 .clear20{clear:both;height:20px}
 
+button,input[type=submit],input[type=button],a{
+cursor:pointer;
+}
 
-.addonImage{position:absolute; top:0px; left:0px;}
+.green-btn{
+	background:url(../images/common/green_button_bg.png) repeat-x center center;
+	height:35px;
+	border:#009900 1px solid;
+	color:#FFFFFF;
+	font-weight:bold;
+	display:block;
+}
+.red-btn{
+	background:url(../images/common/red_button_bg.png) repeat-x center center;
+	height:35px;
+	border:#CC0000 1px solid;
+	color:#FFFFFF;
+	font-weight:bold;
+	display:block;
+}
+.white-btn{
+	background:#FFFFFF;
+	height:35px;
+	border:#009900 1px solid;
+	color:#333333;
+	font-weight:bold;
+	display:block;
+}
+
+.yellow-btn{
+	background:#FFFFFF;
+	height:35px;
+	border:#FF6600 1px solid;
+	color:#333333;
+	font-weight:bold;
+	display:block;
+}
+
+.grey-btn{
+	background:#E0E0E0;
+	height:35px;
+	border:#CCCCCC 1px solid;
+	color:#333333;
+	font-weight:bold;
+	display:block;
+}
+
+a.btn{
+	padding:5px;
+	height:auto !important;
+	display:inline-block !important;
+}
+
+.addonImage{position:absolute; top:0px; left:0px;display:none}
 
 .mainWrapper{height:3000px;width:100%;background:url(../images/common/main_bg.png) no-repeat top center;}
 .leftWrapper{height:inherit;width:300px;float:left}
@@ -29,7 +82,7 @@ a,a:hover,a:active,a:visited{text-decoration:none;}
 .centerWrapper{height:inherit;min-width:800px;float:left}
 .banner .logo{width:282px; height:90px; margin-left:auto; margin-right:auto; margin-bottom:40px; margin-top:20px}
 .banner .searchBar {width:660px; margin-left:auto; margin-right:auto}
-.banner .searchBar .searchBox {height: 39px; width: 600px; margin-top:1px; float:left;}
+.banner .searchBar .searchBox {height: 39px; width: 580px; margin-top:1px; float:left; margin-right: 0 !important;}
 .banner .searchBar .searchButton{border:none;background:url(../images/common/search_button.png) no-repeat center center; width:56px; height:44px;float:left}
 
 .rightWrapper{height:inherit;width:250px;float:right; border-left:#CCC 1px solid; margin-top:10px; padding:5px;}
@@ -37,3 +90,32 @@ a,a:hover,a:active,a:visited{text-decoration:none;}
 .subscriberBlock .subscriberBlockContent .subscribeButton{background:url(../images/common/subscribe_button_bg.png) repeat-x; width:202px;  height:32px; border:#FF9900 solid 2px; font-family:Verdana, Geneva, sans-serif; font-weight:bold; font-size:12px; color:#FFFFFF}
 .subscriberBlock .subscriberBlockContent .subscribeButton:hover{background-position:0px -35px;}
 
+.note{
+	height:auto !important;
+	font-size:11px;
+	color:#666666;
+	font-family:Geneva, Arial, Helvetica, sans-serif;
+}
+
+.info{
+	color:#999999;
+	font-size:14px;
+	font-family:Geneva, Arial, Helvetica, sans-serif;
+}
+
+.lineBreak{
+	height:1px;
+	background-color:#DBDBDB;
+	margin:2px;
+	margin-bottom:5px;
+}
+
+.busy-ani{
+	background:url(../images/common/busy.gif) center center no-repeat;
+}
+
+.warning{
+	background:url(../images/common/warning_sign.png) left center no-repeat;
+	min-height:70px;
+	min-width:75px;
+}

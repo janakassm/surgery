@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'bf45044b42d0f1fe46dec070c538c191e399b308' => 
     array (
       0 => 'application\\views\\admin\\categories\\add.tpl',
-      1 => 1360399998,
+      1 => 1360652147,
       2 => 'file',
     ),
   ),
@@ -26,9 +26,6 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'category' => 0,
     'parentCategory' => 0,
     'opened' => 0,
-    'lvl1childCategories' => 0,
-    'lvl2childCategories' => 0,
-    'lvl3childCategories' => 0,
     'footer' => 0,
   ),
   'has_nocache_code' => false,
@@ -44,21 +41,38 @@ xcalls/get/";
 //
 $(document).ready(function(e) {
    
-   $("input[name='category_level']").change(function(e) {        
-		if( $("input[name='category_level']:checked").val() != 0)
-		{
-			$("#parent-category").removeAttr('disabled');
-		}
-		else
-		{
-			$("#parent-category").attr('disabled','disabled');
-		}
+   $("input[name='category_level']").change(function(e) {  
+   		var level = $("input[name='category_level']:checked").val();
+		GetCategories(level);
 	});
 	
-	$("input[name='category_level']").trigger('change');
-	
+	$("#init-category-level").trigger('change');
 	
 });
+
+function GetCategories(level)
+{
+	$.post(
+		get_url+'getCategoriesAsOptions',
+		{'level':level},
+		function(respond)
+		{
+			if(respond.success)
+			{
+				var optionList = '<option value="0">No parent</option>'+respond.html;
+				
+				$("#parent-category").html(optionList);
+			}
+		},
+		'json'
+	);
+}
+
+function SetupCategoryDropDown()
+{
+	
+}
+
 
 //
 </script>
@@ -77,12 +91,12 @@ optgroup option{
     <div>
     
         <form method="post">
-            <input type="radio" name="category_level"  value="0" checked />Top Level<br />
-            <input type="radio" name="category_level"  value="1" />Sub level 1<br />
-            <input type="radio" name="category_level"  value="2" />Level 2<br />
-            <input type="radio" name="category_level"  value="3" />Level 3<br />
-            
-            <input type="radio" name="category_level"  value="-1" />Bottom menu<br />
+            <input id="init-category-level" type="radio" name="category_level"  value="0" checked />Main Menu
+            <div class="clear2"></div>
+            <input type="radio" name="category_level"  value="1" />Side Menu
+            <div class="clear2"></div>
+            <input type="radio" name="category_level"  value="2" />Bottom menu
+            <div class="clear10"></div>
         
             <!--<select id="parent-category" name="category_parent_id" >
             	<option value="0">No parent</option>
@@ -109,68 +123,19 @@ $_smarty_tpl->tpl_vars['category']->_loop = true;
                     <?php }?>
                 <?php } ?>
             </select><br />-->
+            <label style="width:200px">Parent Category</label>
+           	<select id="parent-category" name="category_parent_id" style="width:400px;" class="inputText">
+            	
+            	
+            </select>
+            <div class="clear10"></div>
             
-           	<select id="parent-category" name="category_parent_id" >
-            	<option value="0">No parent</option>
-            	<?php  $_smarty_tpl->tpl_vars['category'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['category']->_loop = false;
- $_from = $_smarty_tpl->tpl_vars['categoryList']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
-foreach ($_from as $_smarty_tpl->tpl_vars['category']->key => $_smarty_tpl->tpl_vars['category']->value){
-$_smarty_tpl->tpl_vars['category']->_loop = true;
-?>
-                	<?php $_smarty_tpl->tpl_vars['lvl1childCategories'] = new Smarty_variable($_smarty_tpl->tpl_vars['category']->value->GetChildCategories(), null, 0);?>
-                	<option value="<?php echo $_smarty_tpl->tpl_vars['category']->value->category_id;?>
-" class="menu-level-1"><span  class="sinhala " ><?php echo $_smarty_tpl->tpl_vars['category']->value->category_title_sin;?>
-</span></option>
-                    <?php if ($_smarty_tpl->tpl_vars['lvl1childCategories']->value){?>
-                    	
-                    	<?php  $_smarty_tpl->tpl_vars['category'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['category']->_loop = false;
- $_from = $_smarty_tpl->tpl_vars['lvl1childCategories']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
-foreach ($_from as $_smarty_tpl->tpl_vars['category']->key => $_smarty_tpl->tpl_vars['category']->value){
-$_smarty_tpl->tpl_vars['category']->_loop = true;
-?>
-                        	<?php $_smarty_tpl->tpl_vars['lvl2childCategories'] = new Smarty_variable($_smarty_tpl->tpl_vars['category']->value->GetChildCategories(), null, 0);?>
-                			<option value="<?php echo $_smarty_tpl->tpl_vars['category']->value->category_id;?>
-" class="menu-level-2"><span  class="sinhala" ><?php echo $_smarty_tpl->tpl_vars['category']->value->category_title_sin;?>
-</span></option>
-                            
-                            <?php if ($_smarty_tpl->tpl_vars['lvl2childCategories']->value){?>
-                                <?php  $_smarty_tpl->tpl_vars['category'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['category']->_loop = false;
- $_from = $_smarty_tpl->tpl_vars['lvl2childCategories']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
-foreach ($_from as $_smarty_tpl->tpl_vars['category']->key => $_smarty_tpl->tpl_vars['category']->value){
-$_smarty_tpl->tpl_vars['category']->_loop = true;
-?>
-                                	<?php $_smarty_tpl->tpl_vars['lvl3childCategories'] = new Smarty_variable($_smarty_tpl->tpl_vars['category']->value->GetChildCategories(), null, 0);?>
-                                    <option value="<?php echo $_smarty_tpl->tpl_vars['category']->value->category_id;?>
-" class="menu-level-3"><span  class="sinhala" ><?php echo $_smarty_tpl->tpl_vars['category']->value->category_title_sin;?>
-</span></option>
-                                    
-                                    <?php if ($_smarty_tpl->tpl_vars['lvl3childCategories']->value){?>
-                                    	<?php  $_smarty_tpl->tpl_vars['category'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['category']->_loop = false;
- $_from = $_smarty_tpl->tpl_vars['lvl3childCategories']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
-foreach ($_from as $_smarty_tpl->tpl_vars['category']->key => $_smarty_tpl->tpl_vars['category']->value){
-$_smarty_tpl->tpl_vars['category']->_loop = true;
-?>
-                                    		<option value="<?php echo $_smarty_tpl->tpl_vars['category']->value->category_id;?>
-" class="menu-level-4"><span  class="sinhala" ><?php echo $_smarty_tpl->tpl_vars['category']->value->category_title_sin;?>
-</span></option>
-                                        <?php } ?>
-                                    <?php }?>
-                                    
-                            	<?php } ?>
-                            <?php }?>
-                            
-                        <?php } ?>
-                        
-                    <?php }?>
-                <?php } ?>
-            </select><br />
-            
-            <label>Category title in (<span class="sinhala" >සිංහල</span>) </label><input type="text" name="category_title_sin"  id="category_title_sin"/>
-            <label>Category title in english </label><input type="text" name="category_title_eng" id="category_title_eng"/><br>
-            
-            
-            
-            <button type="submit" name="add_new" value="1">Add category</button>
+            <label style="width:200px">Category title in සිංහල </label><input type="text" name="category_title_sin"  id="category_title_sin" class="inputText" style="width:400px;"/>
+            <div class="clear5"></div>
+            <label style="width:200px">Category title in english </label><input type="text" name="category_title_eng" id="category_title_eng" class="inputText" style="width:400px;"/>
+            <div class="clear5"></div>
+            <button type="submit" name="add_new" value="1" class="green-btn btn">Save Category</button>
+            <div class="clear10"></div>
             
         </form>
         

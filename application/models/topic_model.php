@@ -18,7 +18,7 @@ class Topic_Model extends GeneralModel {
 	public function Get( $id )
 	{
 		
-		$where = array('topic_id'=>$id);
+		$where = array('topic_id'=>$id, 'topic_is_deleted'=>false);
 		
 		$query = self::$db->get_where(self::$table,$where,1);
 		
@@ -76,8 +76,12 @@ class Topic_Model extends GeneralModel {
 		if( !is_null($id) )
 		{
 			
+			$data = array(
+				'topic_is_deleted' => true,
+				'topic_sort_count' => 999999
+			);
 			self::$db->where('topic_id', $id);
-			self::$db->delete(self::$table);
+			self::$db->update(self::$table,$data);
 			
 			return true;
 		}
@@ -90,7 +94,7 @@ class Topic_Model extends GeneralModel {
 		
 		if($np == 'down')
 		{
-			$sql = 'SELECT * FROM `'.self::$table.'` WHERE `topic_page_id` = '.$page_id.' AND `topic_sort_count`> '.$cp.' ORDER BY topic_sort_count ASC LIMIT 1';
+			$sql = 'SELECT * FROM `'.self::$table.'` WHERE `topic_page_id` = '.$page_id.' AND `topic_sort_count`> '.$cp.' AND `topic_is_deleted`=0 ORDER BY topic_sort_count ASC LIMIT 1';
 			$query = self::$db->query($sql);
 			$result = $query->result();
 			
@@ -137,20 +141,10 @@ class Topic_Model extends GeneralModel {
 		
 	}
 	
-	public static function GetTopics($articleId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
+	public static function GetTopics($articleId = NULL, $isPublic = NULL, $searchTag = NULL, $isDeleted = false )
     {
     	self::$CI->load->library('Topic');
-		   
-		if( !is_null($selectedColumns) )
-		{
-			$selectQuery = "";
-			if( is_array($selectedColumns) )
-				$selectQuery = implode(",", $selectedColumns);
-			else
-				$selectQuery = $selectedColumns;
-				
-			self::$db->select($selectQuery);	
-		}
+		
 		
 		if( !is_null($articleId) )
 			self::$db->where('topic_article', $articleId);
@@ -165,6 +159,9 @@ class Topic_Model extends GeneralModel {
 			self::$db->like('topic_heading',$searchTag);
 			self::$db->or_like('topic_content',$searchTag);
 		}
+		
+		if( !is_null($isDeleted) )
+			self::$db->where('topic_is_deleted', $isDeleted);
 		
 		self::$db->order_by('topic_sort_count','ASC');
 		self::$db->order_by('topic_id','ASC');
@@ -195,13 +192,14 @@ class Topic_Model extends GeneralModel {
 		return false;
 	}
 	
-	public static function InsertVideo( $topicId, $url )
+	public static function InsertVideo( $topicId, $youtubeId, $title, $embedUrl )
 	{
 		if( !is_null($topicId) )
 		{
 			$data = array(
-				'video_topic' => $topicId,
-				'video_url' => $url
+				'topic_id' => $topicId,
+				'video_title' => $title,
+				'video_url' => $embedUrl
 			);
 			self::$db->insert(self::$video_table,$data);
 			$id = self::$db->insert_id();
@@ -229,7 +227,7 @@ class Topic_Model extends GeneralModel {
 	
 	public static function DeleteVideo( $topicId, $videoId )
 	{
-		if( !empty($fileData) )
+		if( !empty($videoId) )
 		{
 			self::$db->where('video_id',$videoId);
 			self::$db->where('topic_id',$topicId);

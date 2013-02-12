@@ -3,7 +3,6 @@
 class Article extends GeneralClass
 {
 	public $article_id = NULL;
-	public $article_category = NULL;
 	public $article_title = '';
 	
 	public $article_is_public = true;
@@ -12,6 +11,8 @@ class Article extends GeneralClass
 	
 	private $img_list = array();
 	private $topic_list = array();
+	private $category_list = array();
+	
 	
 	public function __construct()
 	{
@@ -23,16 +24,20 @@ class Article extends GeneralClass
 	public function IsArticle( $refreshObject = true,$byTitle =false)
 	{
 		
-		if( $byTitle && $data = $this->CI->article_manager->Get(NULL, $this->article_title) )
+		if( $byTitle && $data = Article_Model::Get(NULL, $this->article_title) )
 		{
 			if($refreshObject)
-				$this->ParseToObject($data);
+			{
+				$this->Refresh($data);
+			}
 			return true;
 		}
-		else if( $data = $this->CI->article_manager->Get($this->article_id) )
+		else if( $data = Article_Model::Get($this->article_id) )
 		{
 			if($refreshObject)
-				$this->ParseToObject($data);
+			{
+				$this->Refresh($data);
+			}
 			return true;
 		} 
 		else
@@ -40,29 +45,15 @@ class Article extends GeneralClass
 		
 	}
 	
-	public function Refresh()
+	public function Refresh($data = null)
 	{
 		if( !is_null($this->article_id) )
 		{
-			$this->img_list = array();
-			$this->img_list_360 = array();
-			$imgList = Article_Model::GetImageList($this->article_id);
+			if($data == null)
+				$data = Article_Model::Get($this->article_id);
+			$this->ParseToObject($data);
 			
-			foreach($imgList as $img)
-			{
-				$this->img_list[$img->article_image_index] = array('fileUrl'=>$img->article_image_url,'fileId'=>$img->article_image_id);
-			}
-			
-			$imgList360 = Article_Model::GetImageList360($this->article_id);
-			
-			if( !is_null($imgList360) )
-			{
-				foreach($imgList360 as $img)
-				{
-					$this->img_list_360[$img['index']] = $img['data'];
-				}
-			}
-
+			$this->category_list = Article_Model::GetArticleCategories($this->article_id);
 		}
 	}
 	
@@ -186,11 +177,23 @@ class Article extends GeneralClass
 		return false;
 	}
 	
+	public function InsertCategory($categoryId)
+	{
+		if(!is_null($categoryId))
+		{
+			Article_Model::InsertCategory($this->article_id, $categoryId);
+			$this->Refresh();
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public function DeleteImage($fileId = NULL)
 	{
 		if( !is_null($fileId) )
 		{
-			if( array_key_exists($fileId, $this->img_list) )
+			if( array_key_exists($categoryId, $this->img_list) )
 			{
 				if( Article_Model::DeleteImage($this->img_list[$fileId]) )
 				{
@@ -219,6 +222,21 @@ class Article extends GeneralClass
 		
 		return false;
 	}
+	
+	public function DeleteCategory($categoryId)
+	{
+		if( !is_null($categoryId) )
+		{
+			if( Article_Model::DeteleCategory($this->article_id, $categoryId) )
+			{
+				$this->Refresh();
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	
 	public function Delete()
 	{
@@ -261,6 +279,12 @@ class Article extends GeneralClass
 		}
 		return false;
 	}
+	
+	public function GetCategoryList()
+	{
+		return $this->category_list;
+	}
+	
 	
 	public function PreRegister()
 	{

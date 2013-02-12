@@ -21,22 +21,13 @@ $(document).ready(function(e) {
 	$("#usingAbhaya").change(function(e){
 		convertText = $(this).is(':checked');
 	});
-	
-	
-	
-	$("input[name='category_level']").change(function(e) {        
-		if( $("input[name='category_level']:checked").val() == 1)
-		{
-			
-			$("#parent-category").removeAttr('disabled');
-		}
-		else
-		{
-			$("#parent-category").attr('disabled','disabled');
+	$(document).bind('keydown', 'ctrl+q', function(e) {
+		if((e.which==113 || e.which==81) && e.ctrlKey){ 
+			$("#usingAbhaya").click(); 
 		}
 	});
 	
-	$("input[name='category_level']").trigger('change');
+	
 	
 	
 	/*tinyMCE.init({
@@ -65,7 +56,7 @@ $(document).ready(function(e) {
 	$("#add-topic").click(function(e) {
 			$.post( 
 					set_url+'newTopic',  
-					{ 'articleId': selectedArticle }, 
+					{ 'article_id': selectedArticle }, 
 					function(response) {
 						if(response.success)
 						{
@@ -86,6 +77,16 @@ $(document).ready(function(e) {
 							
 							newTopic.find(".add-image-button").fineUploader({
 								maxConnections:1,
+								text:{
+									'uploadButton':'<span class="add-icon icon"></span>Add Image'
+								},
+								failedUploadTextDisplay : {
+									mode:'none'
+								},
+								retry : {
+									showButton : false,
+									showAutoRetryNote : false
+								},
 								request: {
 									endpoint: base_url+'admin/articles/UploadImage',
 									params:{
@@ -99,11 +100,16 @@ $(document).ready(function(e) {
 				  			})
 							.on('complete', function(event, id, filename, responseJSON){
 								
+								if(responseJSON.error != null || responseJSON.success == null)
+								{
+									alert('Error: ' + responseJSON.error);
+									return;
+								}
+								
 								var imgWrap = $(
-									'<div id="image_'+responseJSON.filename_we+'" > '+
+									'<div id="image_'+responseJSON.filename_we+'" class="image-container" > '+
 									'<img src = "'+base_url+responseJSON.file_url+'" id="img-'+responseJSON.filename_we+'" title="'+responseJSON.filename_we+'" />'+
-									'<div class="clear10" style="float:none;"></div>'+
-									'<a  class="delete-button AdminBut Delete" title="'+responseJSON.filename_we+'">Delete</a></div>'
+									'<a  class="delete-button Delete delete-icon" title="'+responseJSON.filename_we+'"></a></div>'
 								);
 								
 								imgWrap.find('.delete-button').click(function(e){
@@ -117,6 +123,8 @@ $(document).ready(function(e) {
 						
 							newTopic.find(".add-video-button").click(function(e){
 								e.preventDefault();
+								AddVideoAction(this);
+								/*
 								var videoList = $(newTopic.find('.video-list'));
 								var url = newTopic.find(".video_link").val();
 								
@@ -126,6 +134,7 @@ $(document).ready(function(e) {
 								var video = $('<embed width="420" height="345" type="application/x-shockwave-flash"></embed>');
 								video.attr('src',url);
 								videoList.append(video);
+								*/
 							});
 							
 							newTopic.appendTo("#topic-container");
@@ -143,6 +152,8 @@ $(document).ready(function(e) {
 							newTopic.find("textarea").autosize();
 							
 							newTopic.show();
+							
+							newTopic.find('input[name=topic_heading]').focus();
 						}
 					},
 					'json'
@@ -151,10 +162,65 @@ $(document).ready(function(e) {
 			return;
     });
 	
+	
+	$("#add-category").click(function(e){
+		e.preventDefault();
+		
+		var selectedCat = parseInt($("#article-category").val());
+		
+		if(selectedCat != 0 || selectedCat != "")
+		{
+			$.post(
+				set_url+'addArticleCategory',  
+				{ 'article_id': selectedArticle, 'cat_id':selectedCat }, 
+				function(response) {
+					if(response.success)
+					{
+					
+						var articleCatWrap = $('<div id="article_cat_'+response.category_id+'" class="article_cat">'+response.category_title_sin+'<a class="delete-button Delete minus-icon" title="'+response.category_id+'"></a></div>');
+						articleCatWrap.find(".delete-button").click(function(e) {
+							e.preventDefault();
+							CategoryDeleteAction($(this));								
+						});
+						articleCatWrap.appendTo('#category-container');
+					}
+					else
+					{
+						alert(response.error);
+					}
+				},
+				'json'
+			);
+		}
+		else
+		{
+			alert('Please select a category');
+		}
+		
+	});
+	
+	 $("input[name='category_level']").change(function(e) {  
+   		var level = $("input[name='category_level']:checked").val();
+		GetCategories(level);
+	});
+	
+	$('#init_category_level').trigger('change');
+	
 	SetupTopics();
+	SetupArticleCats();
+	
+	
 	
 	
 });
+
+function SetupArticleCats()
+{
+	$('#category-container').find(".delete-button").click(function(e) {
+		e.preventDefault();
+		CategoryDeleteAction($(this));								
+	});
+}
 
 function SetupTopics()
 {
@@ -173,13 +239,30 @@ function SetupTopics()
 				TopicDeleteAction($(this));								
 			});
 			
+			
+			
 			newTopic.find('.image-list').find(".delete-button").click(function(e) {
 				e.preventDefault();
 				ImageDeleteAction($(this));								
 			});
 			
+			newTopic.find('.video-list').find(".delete-button").click(function(e) {
+				e.preventDefault();
+					VideoDeleteAction($(this));								
+			});
+			
 			newTopic.find(".add-image-button").fineUploader({
 				maxConnections:1,
+				text:{
+					'uploadButton':'<span class="add-icon icon"></span>Add Image'
+				},
+				failedUploadTextDisplay : {
+					mode:'none'
+				},
+				retry : {
+					showButton : false,
+					showAutoRetryNote : false
+				},
 				request: {
 					endpoint: base_url+'admin/articles/UploadImage'
 				}
@@ -189,12 +272,15 @@ function SetupTopics()
   			})
 			.on('complete', function(event, id, filename, responseJSON){
 				
-				
+				if(responseJSON.error != null || responseJSON.success == null)
+				{
+					alert('Error: ' + responseJSON.error);
+					return;
+				}
 				var imgWrap = $(
-					'<div id="image_'+responseJSON.filename_we+'" > '+
+					'<div id="image_'+responseJSON.filename_we+'"  class="image-container" > '+
 					'<img src = "'+base_url+responseJSON.file_url+'" id="img-'+responseJSON.filename_we+'" title="'+responseJSON.filename_we+'" />'+
-					'<div class="clear10" style="float:none;"></div>'+
-					'<a  class="delete-button AdminBut Delete" title="'+responseJSON.filename_we+'">Delete</a></div>'
+					'<a  class="delete-button Delete delete-icon" title="'+responseJSON.filename_we+'"></a></div>'
 				);
 				
 				imgWrap.find('.delete-button').click(function(e){
@@ -221,6 +307,10 @@ function SetupTopics()
 			
 		}
 	);
+	
+	
+	
+	
 }
 
 
@@ -231,14 +321,14 @@ function TopicSaveAction(element)
 	var formElement =  $(element).parent();
 	
 	formElement.next().show();
-	formElement.hide();
+	//formElement.hide();
 	
 	$.post( 
 		set_url+'saveTopic',  
 		formData, 
 		function(response) {
 			formElement.next().hide();
-			formElement.show();
+			//formElement.show();
 		},
 		'json');
 }
@@ -255,9 +345,10 @@ function TopicDeleteAction(element)
 			if(response.success)
 			{
 				formElement.parent().remove();
+				$('#topic-container .article_topic:last').find('input[name=topic_heading]').focus();
 			}
 			else
-				alert('deletion failed');
+				alert('Topic deletion failed');
 		},
 		'json');
 }
@@ -279,6 +370,39 @@ function ImageDeleteAction(element)
 	);
 }
 
+
+function AddVideoAction(element)
+{
+	var urlString = $(element).parent().find('.video_link').val();
+	var topicId = $(element).parent().find(".topic_id").val();
+	var videoListElement =  $(element).parent().find(".video-list");
+	
+	$.post( 
+	set_url+'addTopicVideo',  
+	{ 'url': urlString, 'topic_id':topicId },
+	function(response) {
+		if(response.success)
+		{
+			
+			var video = $('<div id="video_'+response.video_id+'" class="video-container" > '+
+						 	'<iframe frameborder="0" allowfullscreen width="200" height="200" '+
+							'src="'+response.url+'"></iframe>' +
+							'<a  class="delete-button Delete delete-icon" title="'+response.video_id+'"></a></div>')
+							
+			video.find('.delete-button').click(function(e){
+					e.preventDefault();
+					VideoDeleteAction($(this));									
+				});				
+			
+			videoListElement.append(video);
+			
+			$(element).parent().find('.video_link').val('');
+		}
+		else
+			alert('Invalid youtube video id');
+	},
+	'json');
+}
 function VideoDeleteAction(element)
 {
 	var video_id = $(element).attr('title');
@@ -297,38 +421,41 @@ function VideoDeleteAction(element)
 	);
 }
 
-function AddVideoAction(element)
+
+function CategoryDeleteAction(element)
 {
-	var urlString = $(element).parent().find('.video_link').val();
-	var topicId = $(element).parent().find(".topic_id").val();
-	var videoListElement =  $(element).parent().find(".video-list");
+	var cat_id = $(element).attr('title');
+	var article_id = selectedArticle;
 	
 	$.post( 
-	set_url+'addTopicVideo',  
-	{ 'url': urlString, 'topic_id':topicId },
-	function(response) {
-		if(response.success)
-		{
-			
-			videoListElement.html('');
-			var video = $('<div id="video_'+response.id+'" > '+
-							'<embed width="420" height="345" src="'+response.url+'" type="application/x-shockwave-flash"></embed>'+
-							'<div class="clear10" style="float:none;"></div>'+
-							'<a  class="delete-button AdminBut Delete" title="'+response.id+'">Delete</a></div>');
-							
-			video.find('.delete-button').click(function(e){
-					e.preventDefault();
-					VideoDeleteAction($(this));									
-				});				
-			
-			videoListElement.append(video);
-		}
-		else
-			console.log('adding failed');
-	},
-	'json');
+		set_url+'deleteArticleCategory',  
+		{ 'cat_id': cat_id, 'article_id':article_id }, 
+		function(response) {
+			if(response.success)
+			{
+				$("#article_cat_"+response.category_id).remove();
+			}
+		},
+		'json'
+	);
 }
-
+function GetCategories(level)
+{
+	$.post(
+		get_url+'getCategoriesAsOptions',
+		{'level':level,'selected_id':null},
+		function(respond)
+		{
+			if(respond.success)
+			{
+				var optionList = '<option value="0">No parent</option>'+respond.html;
+				
+				$("#article-category").html(optionList);
+			}
+		},
+		'json'
+	);
+}
 
 function TextFormat(text)
 {
@@ -344,90 +471,104 @@ function TextFormat(text)
     	{$msg}
     </div>
     <div >
-    	<div><input type="checkbox" id="usingAbhaya" value="1" /> I'm using Abhaya font</div>
+    	<div class="right-static-menu">
+        	
+        	<input type="checkbox" id="usingAbhaya" value="1" /> I'm using Abhaya font
+            <div class="lineBreak"></div>
+            <button type="button" id="add-topic" class="white-btn"><span class="add-icon icon"></span>Add topic</button>
+        </div>
+        
+        
+       
+        <label>Main menu</label><input  type="radio" name="category_level" id="init_category_level"  value="0" checked />
+        <label>Side menu</label><input type="radio" name="category_level"  value="1" />
+        <label>Bottom menu</label><input type="radio" name="category_level"  value="2" />
+        <div class="clear5">
+        
+        <select id="article-category" >
+            
+        </select>
+        
+        <button type="button" id="add-category" class="white-btn"><span class="add-icon icon"></span>Add Category</button>
+        
+        <div class="clear10"></div>
+        
+        <div id="category-container">
+        	{foreach $article->GetCategoryList() as $cat}
+        	<div id="article_cat_{$cat->category_id}" class="article_cat">{$cat->category_title_sin}<a class="delete-button Delete minus-icon" title="{$cat->category_id}"></a></div>
+            {/foreach}
+        </div>
+        
+        <div class="clear20"></div>
         <form method="post">
         	
-            <select id="parent-category" name="article_category" >
-            	<option value="0">No Category</option>
-            	{foreach $categoryList as $category}
-                	{$lvl1childCategories = $category->GetChildCategories()}
-                	<option value="{$category->category_id}" class="menu-level-1"><span  class="sinhala " >{$category->category_title_sin}</span></option>
-                    {if $lvl1childCategories}
-                    	
-                    	{foreach $lvl1childCategories as $category}
-                        	{$lvl2childCategories = $category->GetChildCategories()}
-                			<option value="{$category->category_id}" class="menu-level-2"><span  class="sinhala" >{$category->category_title_sin}</span></option>
-                            
-                            {if $lvl2childCategories}
-                                {foreach $lvl2childCategories as $category}
-                                	{$lvl3childCategories = $category->GetChildCategories()}
-                                    <option value="{$category->category_id}" class="menu-level-3"><span  class="sinhala" >{$category->category_title_sin}</span></option>
-                                    
-                                    {if $lvl3childCategories}
-                                    	{foreach $lvl3childCategories as $category}
-                                    		<option value="{$category->category_id}" class="menu-level-4"><span  class="sinhala" >{$category->category_title_sin}</span></option>
-                                        {/foreach}
-                                    {/if}
-                                    
-                            	{/foreach}
-                            {/if}
-                            
-                        {/foreach}
-                        
-                    {/if}
-                {/foreach}
-            </select><br />
+           
             
-            Article title<input type="text" name="article_title" value="{$article->article_title}" class="inputText" /><br />
+            <label>Article title</label> <input type="text" name="article_title" value="{$article->article_title}" class="inputText" />
             
-            <button type="submit" name="save" value="1">Save article</button><br />
+            <button class="green-btn save-button" type="submit" name="save" value="1">Save article</button>
         </form>
-        <button type="button" id="add-topic">+</button><br />
+        <div class="clear20"></div>
+        
+        <div class="clear10"></div>
         
         <div id="topic-container">
         	{foreach $topicList as $topic}
         		{$topic->Refresh()}
-        	<div id="new-topic-{$topic->topic_id}" class="article_topic" >
+        	<div id="new-topic-{$topic->topic_id}" class="article_topic box" >
 		    	<form class="topic-form">
-		            <input type="text" name="topic_heading" value="{$topic->topic_heading}" class="inputText" /><br />
-		            <textarea class="topic_body inputText" name="topic_content" >{$topic->topic_content}</textarea><br />
+		            <label style="width:70px">Title</label><input type="text" name="topic_heading" value="{$topic->topic_heading}" class="topic_heading inputText" />
+                    <div class="clear5"></div>
+		            <label style="width:70px">Content</label><textarea class="topic_body inputText" name="topic_content" >{$topic->topic_content}</textarea>
+                    <div class="clear5"></div>
+                    <div class="add-image-button add-image-video-button"></div>
+		            <div class="clear10"></div>
+                    
 		            <div class="image-list">
 		            	{foreach $topic->GetImageList() as $img}
-		            	<div id="image_{$img['fileIndex']}" >
+                       
+		            	<div id="image_{$img['fileIndex']}" class="image-container" >
 						<img src = "{$base_url}{$img['fileUrl']}" id="img-{$img['fileIndex']}" title="{$img['fileIndex']}" />
-						<div class="clear10" style="float:none;"></div>
-						<a  class="delete-button AdminBut Delete" title="{$img['fileIndex']}">Delete</a></div>
+						<a  class="delete-button Delete delete-icon" title="{$img['fileIndex']}"></a>
+                        </div>
 		            	{/foreach}
 		            </div>
+		            <div class="clear5"></div>
+		           
 		            
-		            <div class="add-image-button">Add Image</div>
-		            
-		            
-		            
-		            <input class="video_link" />
-		            <button class="add-video-button">Add Video</button>
-		            
-		            <div class="video-list"></div>
-		            
-		            <br />
-		            <button class="save-button">Save</button>
-		            <button class="topic-delete-button">Delete</button>
+		            <label>Youtube Video Id</label><input class="video_link inputText" />
+		            <button class="add-video-button add-image-video-button"><span class="add-icon icon"></span>Add Video</button>
+                    <div class="clear2"></div>
+                    <span class="note">If the url is http://www.youtube.com/watch?v=AcYmUIACfhs then the id is AcYmUIACfhs (part after v=)</span>
+		           
+		            <div class="clear10"></div>
+		            <div class="video-list">
+                    {foreach $topic->GetVideoList() as $video}
+                    	<div id="video_{$video->video_id}" class="video-container" >
+                        	<iframe frameborder="0" allowfullscreen width="200" height="200" src="{$video->video_url}"></iframe>
+                            <a  class="delete-button Delete delete-icon" title="{$video->video_id}"></a>
+                        </div>
+                    {/foreach}
+                    </div>
+		            <div class="clear10"></div>
+		            <button class="save-button green-btn">Save Topic</button>
+		            <button class="topic-delete-button red-btn">Delete Topic</button>
 		            <input type="hidden" name="topic_id" class="topic_id" value="{$topic->topic_id}"  />
 		        </form>
-		        <div class="loading-progrss" style="display:none" >Saving....</div>
+		        <div class="loading-progrss" style="display:none" ><div class="busy-ani saving-ani">Saving</div></div>
+                <div class="clear"></div>
 		    </div>
+            
         	{/foreach}
         </div>
-    
-    	<div>
-        	<select>
-            	<option value="0">No Advertisement</option>
-                {foreach $advertisementList as $advertisement }
-                    <option value="{$advertisement->advertisement_id}">{$advertisement->advertisement_title}</option>
-                {/foreach}
-            </select>
-        </div>
-    	<button type="button" id="add-advertisement">+</button><br />
+    	<div class="clear20"></div>
+        <select>
+            <option value="0">No Advertisement</option>
+            {foreach $advertisementList as $advertisement }
+                <option value="{$advertisement->advertisement_id}">{$advertisement->advertisement_title}</option>
+            {/foreach}
+        </select>
+        <button type="button" id="add-advertisement" class="white-btn"><span class="add-icon icon"></span>Add Advertisement</button>
         
         <div id="adverticement-container">
         	
@@ -435,22 +576,34 @@ function TextFormat(text)
     </div>
    
     
-    <div id="new-topic-tpl" style="display:none">
+    <div id="new-topic-tpl" style="display:none" class="article_topic box">
     	<form class="topic-form">
-            <input type="text" name="topic_heading" class="inputText" /><br />
-            <textarea class="article_body inputText" name="topic_content"  ></textarea><br />
-            <div class="image-list"></div>
+        	<label style="width:70px">Title</label><input type="text" name="topic_heading" value="" class="topic_heading inputText" />
+            <div class="clear5"></div>
+            <label style="width:70px">Content</label><textarea class="topic_body inputText" name="topic_content" ></textarea>
             
-            <div class="add-image-button">Add Image</div>
-            <input class="video_link" />
-            <button class="add-video-button">Add Video</button>
+            <div class="clear5"></div>
+            <div class="add-image-button"></div>
+            <div class="clear10"></div>
+            
+            <div class="image-list"></div>
+            <div class="clear5"></div>
+           
+            
+            
+            <label>Youtube Video Id</label><input class="video_link inputText" />
+            <button class="add-video-button add-image-video-button"><span class="add-icon icon"></span>Add Video</button>
+            <div class="clear2"></div>
+            <span class="note">If the url is http://www.youtube.com/watch?v=AcYmUIACfhs then the id is AcYmUIACfhs (part after v=)</span>
+            <div class="clear10"></div>
             <div class="video-list"></div>
-            <br />
-            <button class="save-button">Save</button>
-            <button class="topic-delete-button">Delete</button>
-            <input type="hidden" name="topic_id" class="topic_id"  />
+            <div class="clear10"></div>
+            <button class="save-button green-btn">Save Topic</button>
+            <button class="topic-delete-button red-btn">Delete Topic</button>
+            <input type="hidden" name="topic_id" class="topic_id" value="{$topic->topic_id}"  />
         </form>
-        <div class="loading-progrss" style="display:none" >Saving....</div>
+        <div class="loading-progrss" style="display:none" ><div class="busy-ani saving-ani">Saving</div></div>
+        <div class="clear"></div>
     </div>
     
     

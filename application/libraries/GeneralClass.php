@@ -2,11 +2,12 @@
 class GeneralClass {
 	
 	/* Common Class functions */
-	protected $CI;
+	protected static $CI;
 	
 	public function __construct()
 	{
 		$this->CI =& get_instance();
+		self::$CI = & get_instance();
 	}
 	
 	public function GetObjectVars() 

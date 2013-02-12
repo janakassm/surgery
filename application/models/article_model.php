@@ -2,6 +2,7 @@
 class Article_Model extends GeneralModel {
 	
 	private static $table = 'article';
+	private static $category_table = 'article_category';
 	
 	public function __construct()
     {
@@ -103,6 +104,7 @@ class Article_Model extends GeneralModel {
 	}
 	
 	
+	
 	public static function ReSort($id, $page_id, $cp, $np)
 	{
 		
@@ -154,6 +156,39 @@ class Article_Model extends GeneralModel {
 		return false;	
 		
 	}
+
+
+	public static function InsertCategory( $articleId, $categoryId )
+	{	
+		
+		$id = false;
+		
+		$data = array(
+			'article_id' => $articleId,
+			'category_id' => $categoryId
+		);
+		
+		self::$db->insert(self::$category_table,$data);
+		
+		return $categoryId;
+		
+		
+	}
+	
+	public static function DeteleCategory( $articleId, $categoryId )
+	{
+		
+		if( !is_null($articleId) && !is_null($categoryId) )
+		{
+			self::$db->where('article_id', $articleId);
+			self::$db->where('category_id', $categoryId);
+			self::$db->delete(self::$category_table);
+			
+			return true;
+		}
+		
+		return false;
+	}
 	
 	public static function GetArticles($categoryId = NULL, $isPublic = NULL, $searchTag = NULL, $selectedColumns = NULL )
     {
@@ -195,6 +230,13 @@ class Article_Model extends GeneralModel {
         $result = $query->result('Article');
 		
 		return $result;
+	}
+	
+	public static function GetArticleCategories($article_id)
+	{
+		self::$db->where('article_id' , $article_id);
+		self::$db->join('category', 'category.category_id = '.self::$category_table.'.category_id');
+		return $query = self::$db->get(self::$category_table)->result();
 	}
 }
 ?>
